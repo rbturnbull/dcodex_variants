@@ -1,0 +1,218 @@
+{% extends "dcodex/base_sidebars.html" %}
+{% load static %}
+{% load dcodex_tags %}
+{% load dcodex_variants_tags %}
+{% block title %}Location{% endblock %}
+
+{% block stylesheet %}
+<link rel="stylesheet" type="text/css" href="{% static 'dcodex/css/comparison.css' %}" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<style>
+
+.comparison_button {
+    width: 20px;
+    height: 25px;
+}
+</style>
+{% endblock %}
+
+{% block middle %}
+<div id="header">
+{% if location.next %}
+    <div id="next_location" class='inputHeader inputButton noselect'>
+        <a href="{% url 'location_for_witness' witness location.next.id %}" class="btn btn-primary btn-sm"><i class="fas fa-arrow-right"></i></a>        
+    </div>
+{% endif %}
+{% if location.prev %}
+    <div id="prev_location" class='inputHeader inputButton noselect'>
+        <a href="{% url 'location_for_witness' witness location.prev.id %}" class="btn btn-primary btn-sm"><i class="fas fa-arrow-left"></i></a>
+    </div>
+{% endif %}
+<center>
+<h2>{{ location.start_verse }}</span></h2>
+
+
+<div id="basetext">{{ location.ausgangstext }}</div>
+</div>
+<div id="variants">
+    {% for reading in location.reading_set.all %}
+        <button type="button" class="btn  {{ witness|button_for_reading:reading }} reading" data-reading="{{ reading.id }}">{{ reading }}</button>
+    {% endfor %}
+    <hr>
+</center>
+
+<div >
+    <input type="text" id="text" name="text" style='font-size: 2.0em; direction: rtl;' class="form-control" value="{{ text }}">
+    <input type="button" class="btn btn-primary" id="savetext" value="Save Text">
+</div>
+
+{% for manuscript in manuscripts %}
+    <div>
+    <h2>{{manuscript}}</h2>
+    <p style='direction: rtl; font-size: 3.0rem'>{{ manuscript|manuscript_transcription:location.start_verse }}</p>
+    <input type="image" src="{% static 'dcodex/images/preview.png' %}" class="mshover comparison_button" data-manuscriptid="{{ manuscript.id }}" data-verseid="{{ location.start_verse.id }}">
+    </div>
+{% endfor %}
+
+
+<div style='height: 400px; '>
+{% if location.prev %}
+    <div  id=prev_location_bottom class='inputHeader inputButton noselect'>
+        <a href="{% url 'location_for_witness' witness location.prev.id %}"  class="btn btn-primary btn-sm"><i class="fas fa-arrow-left"></i></a>    
+
+    </div>
+{% endif %}
+{% if location.next %}
+    <div id="next_location_bottom" class='inputHeader inputButton noselect'>
+        <a href="{% url 'location_for_witness' witness location.next.id %}"  class="btn btn-primary btn-sm"><i class="fas fa-arrow-right"></i></a>        
+    </div>
+{% endif %}
+
+</div>
+</div>
+
+
+{% endblock %}
+
+{% block right_sidebar %}
+
+<div id='comparison'></div>
+
+{% endblock %}
+
+
+
+{% block left_sidebar %}
+
+<center>
+    <img src="{% static 'dcodex/images/DCodex-Logo.svg' %}" id='logo' />
+</center>
+
+<div id="collation_locations">
+    {% for collation_location in location.collection.locationbase_set.all %}
+        <div class="collation_location {% if collation_location.id == location.id %}collation_location_selected{% endif %}" id="collation_location{{ collation_location.id }}">
+            <div>
+                <a href="{% url 'location_for_witness' witness collation_location.id %}">{{collation_location.start_verse.reference_abbreviation}}</a> 
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+
+{% block extra %}
+<div id=hover></div>
+<div id=msHover style='overflow:hidden;'></div>
+{% endblock %}
+
+
+{% block javascript %}
+<script src="{% static 'dcodex/js/jquery.scrollTo.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+<script>
+var hover_xhr = null;
+function load_comparison(verse_id, manuscript_id, div_name) {
+    $( div_name ).load( "/dcodex/ajax/comparison/", { manuscript_id:manuscript_id, verse_id:verse_id }, function() {
+        $(".mshover").hover(function(){
+            $('#msHover').load("/dcodex/ajax/transcription-mini/", { manuscript_id:$(this).data('manuscriptid'), verse_id:$(this).data('verseid') } );
+            $('#msHover').show();
+        }, function() {
+            $('#msHover').hide();	  
+            $('#msHover').html("");
+        });        
+    } );
+}
+
+$( document ).ready(function() {
+    console.log( "loading from location.html" );
+    
+    function set_attestation( reading ) {
+        $.ajax({
+            type: "POST",
+            url: "/dcodex_variants/set_attestation/",
+            data: {
+                'reading_id': reading.data('reading'), 
+                'witness_id': {{ witness.id }},
+                'text' : $("#text").val(),
+                },
+            success: function(msg){
+                if (msg == "OK") {
+                    reading.removeClass( 'btn-outline-primary' );
+                    reading.addClass( 'btn-primary' );
+                }
+                else {
+                    alert("There was a problem setting the attestation.");
+                }
+            }
+        });        
+    }
+    function remove_attestation( reading ) {
+        $.ajax({
+            type: "POST",
+            url: "/dcodex_variants/remove_attestation/",
+            data: {
+                'reading_id': reading.data('reading'), 
+                'witness_id': {{ witness.id }},
+                },
+            success: function(msg){
+                if (msg == "OK") {
+                    reading.addClass( 'btn-outline-primary' );
+                    reading.removeClass( 'btn-primary' );
+                }
+                else {
+                    alert("There was a problem removing the attestation.");
+                }
+            }
+        });        
+    }
+    $('#savetext').click(function(e) {
+        $(".reading.btn-primary").each(function( index ) {
+            set_attestation( $(this) );
+        });
+    });
+
+    $('.reading').click(function(e) {
+        reading = $(this);
+        if ( reading.hasClass('btn-primary') ){
+            remove_attestation( reading );
+        }
+        else {
+            set_attestation( reading );
+        }
+	});
+    $( ".reading" ).hover(
+        function(event) {
+            sublocationdiv = $(this).parent();
+            sublocation_id = sublocationdiv.data('sublocationid');
+            if (hover_xhr != null) {
+                hover_xhr.abort();
+            }
+            hover_xhr = $.ajax({
+                type: "POST",
+                url: "/dcodex_carlson/attestations/",
+                data: {'code':$(this).data('code'), 'sublocation_id':sublocation_id},
+                success: function(msg){
+                    $("#hover").html(msg);  
+                    var left = event.pageX  + 20;
+                    var top = event.pageY + 30;
+                    $('#hover').css({top: top,left: left}).show();
+                }
+            });
+    
+        }, function() {
+            $("#hover").hide();
+        }
+    );
+    load_comparison({{ location.start_verse.id }}, {{ manuscripts.first.id }}, '#comparison' );
+    
+    $('#collation_locations').scrollTo($('#collation_location{{ location.id }}' ));				
+
+    $('#variants').css( {top: $('#header').height()});
+});
+</script>
+{% endblock %}
