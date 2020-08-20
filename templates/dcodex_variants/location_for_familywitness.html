@@ -2,7 +2,7 @@
 {% load static %}
 {% load dcodex_tags %}
 {% load dcodex_variants_tags %}
-{% block title %}Location{% endblock %}
+{% block title %}{{ witness }}: {{location.start_verse}}{% endblock %}
 
 {% block stylesheet %}
 <link rel="stylesheet" type="text/css" href="{% static 'dcodex/css/comparison.css' %}" />
@@ -19,33 +19,61 @@
 
 {% block middle %}
 <div id="header">
-{% if location.next %}
-    <div id="next_location" class='inputHeader inputButton noselect'>
-        <a href="{% url 'location_for_witness' witness location.next.id %}" class="btn btn-primary btn-sm"><i class="fas fa-arrow-right"></i></a>        
+<div class="container text-center">
+    <div class="row">
+    {% if location.prev %}
+        <div id="prev_location" class='inputHeader inputButton noselect'>
+            <a href="{% url 'location_for_witness' witness location.prev.id %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-left"></i></a>
+        </div>
+    {% endif %}
+    {% if location.next %}
+        <div id="next_location" class='inputHeader inputButton noselect'>
+            <a href="{% url 'location_for_witness' witness location.next.id %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-right"></i></a>        
+        </div>
+    {% endif %}
     </div>
-{% endif %}
-{% if location.prev %}
-    <div id="prev_location" class='inputHeader inputButton noselect'>
-        <a href="{% url 'location_for_witness' witness location.prev.id %}" class="btn btn-primary btn-sm"><i class="fas fa-arrow-left"></i></a>
+
+    <h2>{{ location.start_verse }}</span></h2>
+
+    <ul>
+    {% for reading in location.reading_set.all %}
+        <li>{{ reading }}
+    {% endfor %}
+    </ul>
     </div>
-{% endif %}
-<center>
-<h2>{{ location.start_verse }}</span></h2>
-
-
-<div id="basetext">{{ location.ausgangstext }}</div>
 </div>
+<div class="container text-center">
 <div id="variants">
     {% for reading in location.reading_set.all %}
-        <button type="button" class="btn  {{ witness|button_for_reading:reading }} reading" data-reading="{{ reading.id }}">{{ reading }}</button>
+        <button type="button" class="btn  {{ witness|button_for_reading:reading }} reading" data-reading="{{ reading.id }}" data-toggle="tooltip" title="{{ reading.witnesses_sigla }}" data-placement="bottom">{{ reading }}</button>
     {% endfor %}
     <hr>
 </center>
 
 <div >
-    <input type="text" id="text" name="text" style='font-size: 2.0em; direction: rtl;' class="form-control" value="{{ text }}">
+    <div class="form-group">
+        <label for="text">Text of family</label>
+        <input type="text" id="text" name="text" style='font-size: 2.0em; direction: rtl;' class="form-control text-center" value="{{ text }}">
+    </div>
+    <div class="form-group">
+        <label for="info">Info</label>
+        <textarea class="form-control text-center" id="info" rows="3">{{ info }}</textarea>
+    </div>
+
     <input type="button" class="btn btn-primary" id="savetext" value="Save Text">
 </div>
+
+{% for transcription in transcriptions %}
+    <div class="transcription {% transcription_contra_class witness location transcription %}" id="transcription{{ transcription.id }}" data-transcription="{{ transcription.id }}">
+        <h2>{{transcription.manuscript}}</h2>
+        <p>{{transcription.verse}}</p>
+        <p style='direction: rtl; font-size: 3.0rem'>{{ transcription.transcription }}</p>
+        <input type="image" src="{% static 'dcodex/images/preview.png' %}" class="mshover comparison_button" data-manuscriptid="{{ transcription.manuscript.id }}" data-verseid="{{ transcription.verse.id }}">
+        <button type="button" class="btn btn-outline-danger toggle-contra" data-transcription="{{ transcription.id }}">Contra</button>
+    </div>
+{% endfor %}
+
+<!--
 
 {% for manuscript in manuscripts %}
     <div>
@@ -54,21 +82,24 @@
     <input type="image" src="{% static 'dcodex/images/preview.png' %}" class="mshover comparison_button" data-manuscriptid="{{ manuscript.id }}" data-verseid="{{ location.start_verse.id }}">
     </div>
 {% endfor %}
+-->
+
 
 
 <div style='height: 400px; '>
 {% if location.prev %}
     <div  id=prev_location_bottom class='inputHeader inputButton noselect'>
-        <a href="{% url 'location_for_witness' witness location.prev.id %}"  class="btn btn-primary btn-sm"><i class="fas fa-arrow-left"></i></a>    
+        <a href="{% url 'location_for_witness' witness location.prev.id %}"  class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-left"></i></a>    
 
     </div>
 {% endif %}
 {% if location.next %}
     <div id="next_location_bottom" class='inputHeader inputButton noselect'>
-        <a href="{% url 'location_for_witness' witness location.next.id %}"  class="btn btn-primary btn-sm"><i class="fas fa-arrow-right"></i></a>        
+        <a href="{% url 'location_for_witness' witness location.next.id %}"  class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-right"></i></a>        
     </div>
 {% endif %}
 
+</div>
 </div>
 </div>
 
@@ -130,7 +161,8 @@ function load_comparison(verse_id, manuscript_id, div_name) {
 
 $( document ).ready(function() {
     console.log( "loading from location.html" );
-    
+    var unsaved = false;
+
     function set_attestation( reading ) {
         $.ajax({
             type: "POST",
@@ -139,11 +171,17 @@ $( document ).ready(function() {
                 'reading_id': reading.data('reading'), 
                 'witness_id': {{ witness.id }},
                 'text' : $("#text").val(),
+                'info' : $("#info").val(),
                 },
             success: function(msg){
                 if (msg == "OK") {
                     reading.removeClass( 'btn-outline-primary' );
                     reading.addClass( 'btn-primary' );
+                    unsaved = false;
+
+                    $(".transcription.btn-warning").each( function() {
+                        set_contra( $(this).data("transcription") );
+                    });
                 }
                 else {
                     alert("There was a problem setting the attestation.");
@@ -175,7 +213,14 @@ $( document ).ready(function() {
             set_attestation( $(this) );
         });
     });
-
+    $('.chk-saved').click(function(e) {
+        if (unsaved) {
+            alert("You have unsaved changes.");
+            return false;
+        }
+        return true;
+        
+	});
     $('.reading').click(function(e) {
         reading = $(this);
         if ( reading.hasClass('btn-primary') ){
@@ -184,35 +229,59 @@ $( document ).ready(function() {
         else {
             set_attestation( reading );
         }
+        $('[data-toggle="tooltip"]').tooltip("hide");
+        return true;
 	});
-    $( ".reading" ).hover(
-        function(event) {
-            sublocationdiv = $(this).parent();
-            sublocation_id = sublocationdiv.data('sublocationid');
-            if (hover_xhr != null) {
-                hover_xhr.abort();
+
+    function set_contra( transcription_id ) {
+        $.ajax({
+            type: "POST",
+            url: "{% url 'set_contra' %}",
+            data: {
+                'witness_id': {{ witness.id }},
+                'location_id': {{ location.id }},
+                'transcription_id': transcription_id,
+                },
+            success: function(msg){
+                $("#transcription"+transcription_id).addClass( 'btn-warning' );
             }
-            hover_xhr = $.ajax({
-                type: "POST",
-                url: "/dcodex_carlson/attestations/",
-                data: {'code':$(this).data('code'), 'sublocation_id':sublocation_id},
-                success: function(msg){
-                    $("#hover").html(msg);  
-                    var left = event.pageX  + 20;
-                    var top = event.pageY + 30;
-                    $('#hover').css({top: top,left: left}).show();
-                }
-            });
-    
-        }, function() {
-            $("#hover").hide();
+        });        
+
+    }
+    function remove_contra( transcription_id ) {
+        $.ajax({
+            type: "POST",
+            url: "{% url 'remove_contra' %}",
+            data: {
+                'witness_id': {{ witness.id }},
+                'location_id': {{ location.id }},
+                'transcription_id': transcription_id,
+                },
+            success: function(msg){
+                $("#transcription"+transcription_id).removeClass( 'btn-warning' );
+            }
+        });        
+    }
+    $('.toggle-contra').click(function(e) {
+        var transcription_id = $(this).data("transcription");
+        if ( $("#transcription"+transcription_id).hasClass( 'btn-warning' ) ) {
+            remove_contra( transcription_id );
         }
-    );
+        else {
+            set_contra( transcription_id );
+        }
+        return true;
+	});
     load_comparison({{ location.start_verse.id }}, {{ manuscripts.first.id }}, '#comparison' );
-    
+
+    $(":input").change(function(){ //triggers change in all input fields including text type
+        unsaved = true;
+    });
+
     $('#collation_locations').scrollTo($('#collation_location{{ location.id }}' ));				
 
     $('#variants').css( {top: $('#header').height()});
+    $('[data-toggle="tooltip"]').tooltip();
 });
 </script>
 {% endblock %}
