@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import *
 
+
 # Register your models here.
 @admin.register(Collection)    
 class CollectionAdmin(admin.ModelAdmin):
@@ -8,7 +9,7 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(LocationUBS)    
 class LocationUBSAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields = ("start_verse","end_verse",)
 
 @admin.register(Reading)    
 class ReadingAdmin(admin.ModelAdmin):

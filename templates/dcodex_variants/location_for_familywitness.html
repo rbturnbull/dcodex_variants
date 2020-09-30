@@ -147,17 +147,6 @@
 
 <script>
 var hover_xhr = null;
-function load_comparison(verse_id, manuscript_id, div_name) {
-    $( div_name ).load( "/dcodex/ajax/comparison/", { manuscript_id:manuscript_id, verse_id:verse_id }, function() {
-        $(".mshover").hover(function(){
-            $('#msHover').load("/dcodex/ajax/transcription-mini/", { manuscript_id:$(this).data('manuscriptid'), verse_id:$(this).data('verseid') } );
-            $('#msHover').show();
-        }, function() {
-            $('#msHover').hide();	  
-            $('#msHover').html("");
-        });        
-    } );
-}
 
 $( document ).ready(function() {
     console.log( "loading from location.html" );
@@ -186,6 +175,9 @@ $( document ).ready(function() {
                 else {
                     alert("There was a problem setting the attestation.");
                 }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.status + ": " + thrownError);
             }
         });        
     }
@@ -209,8 +201,13 @@ $( document ).ready(function() {
         });        
     }
     $('#savetext').click(function(e) {
+        var time = 0;
         $(".reading.btn-primary").each(function( index ) {
-            set_attestation( $(this) );
+            var reading = $(this);
+            setTimeout(function() {
+                set_attestation( reading ); // Timeout here is so there aren't multiple writes to the database at the same time.
+            }, time);
+            time += 100;
         });
     });
     $('.chk-saved').click(function(e) {

@@ -66,6 +66,7 @@ def set_attestation( request ):
     witness = get_object_or_404(WitnessBase, id=witness_id) 
     
     response = witness.set_attestation( reading=reading, text=request_dict.get('text'), info=request_dict.get('info') )
+    #response = 1
     return HttpResponse("OK" if response else "FAIL")
     
 

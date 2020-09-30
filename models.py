@@ -26,10 +26,10 @@ def category_from_siglum(siglum):
     if len(siglum) == 3 and siglum[:2] == "ar":
         return "Version"
 
-    if "__" in siglum or siglum in ["NIV", "REB", "TOB", "BTI", "DHH", "EU", "LB"]:
+    if "__" in siglum or siglum in ["NIV", "REB", "TOB", "BTI", "DHH", "EU", "LB", "BJ", "NBS", "GNB", "NRSV"]:
         return "Edition"
 
-    if siglum in ["Byz", "mss", "Lect"]:
+    if siglum in ["Byz", "mss", "Lect", "Latin-mss", "Greek-mss"]:
         return "Other"
 
     if siglum.title() == siglum:
@@ -262,14 +262,14 @@ class LocationUBS(LocationBase):
             self.category = value
 
     def label_for_reading(self, reading):
-        if not self.byz:
-            print(self, self.id, "Doesn't have byz")
-            raise ValueError
-
-        if reading == self.byz:
-            return "0"
-    
-        label_number = self.reading_set.filter(id__lte=reading.id).exclude(id=self.byz.id).count()
+        label_number = self.reading_set.filter(id__lt=reading.id).count()
+        # if not self.byz:
+        #     label_number = self.reading_set.filter(id__lte=reading.id).count()
+        # else:
+        #     if reading == self.byz:
+        #         return "0"
+        
+        #     label_number = self.reading_set.filter(id__lte=reading.id).exclude(id=self.byz.id).count()
         if label_number > 9:
             raise ValueError
         return str(label_number)
