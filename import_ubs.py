@@ -536,3 +536,30 @@ def import_reading_from_html(current_location, reading):
         print("Cannot find reading from: ", reading)
         sys.exit()
     print('-//')
+
+
+def import_from_apparatus(current_location):
+    paragraph_text = current_location.apparatus_html
+
+    m = re.match( "\{(.)\}", re.sub( r"<.*?>", "", paragraph_text ) )
+    certainty = m.group(1) if m else None
+    print('certainty', certainty)
+    print(":")
+    current_location.set_category_from_label( certainty )
+    current_location.save()
+
+    paragraph_text = paragraph_text.replace( " Γ ", " 036 " )
+    paragraph_text = paragraph_text.replace( " Δ ", " 037 " )
+    paragraph_text = paragraph_text.replace( " Θ ", " 038 " )
+    paragraph_text = paragraph_text.replace( " Λ ", " 039 " )                
+    paragraph_text = paragraph_text.replace( " Ξ ", " 040 " )
+    paragraph_text = paragraph_text.replace( " Π ", " 041 " )
+    paragraph_text = paragraph_text.replace( " Σ ", " 042 " )
+    paragraph_text = paragraph_text.replace( " Φ ", " 043 " )
+    paragraph_text = paragraph_text.replace( " Ψ ", " 044 " )
+    paragraph_text = paragraph_text.replace( "<i>f</i><sup>1</sup>", "ƒ1" )                    
+    paragraph_text = paragraph_text.replace( "<i>f</i><sup>13</sup>", "ƒ13" )                    
+    
+    readings = paragraph_text.split("//")
+    for reading in readings:
+        import_reading_from_html(current_location, reading)        

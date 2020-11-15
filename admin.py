@@ -1,8 +1,13 @@
 from django.contrib import admin
 from .models import *
 
+class AttestationInline(admin.TabularInline):
+    model = Attestation
+    raw_id_fields = ("reading",)
+    extra = 0
 
-# Register your models here.
+
+
 @admin.register(Collection)    
 class CollectionAdmin(admin.ModelAdmin):
     pass
@@ -13,7 +18,8 @@ class LocationUBSAdmin(admin.ModelAdmin):
 
 @admin.register(Reading)    
 class ReadingAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['text', 'location__id']  
+    inlines = [AttestationInline,]
 
 @admin.register(SiglumWitness)    
 class SiglumWitnessAdmin(admin.ModelAdmin):
@@ -29,5 +35,5 @@ class ManuscriptWitnessAdmin(admin.ModelAdmin):
 
 @admin.register(Attestation)    
 class AttestationAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields = ("reading",)
 

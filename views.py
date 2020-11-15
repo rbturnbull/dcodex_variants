@@ -13,10 +13,11 @@ from dcodex.models import VerseTranscription
 
 from .models import *
 
+@login_required
 def index(request):
     return HttpResponse("Hello, world. You're at the DCodex Variants index.")
     
-
+@login_required
 def location_for_witness( request, witness_slug, location_id ):
     location = get_object_or_404(LocationUBS, id=location_id) 
 
@@ -33,7 +34,7 @@ def location_for_witness( request, witness_slug, location_id ):
 
     return HttpResponse(f"Cannot find witness: {witness_slug}")
 
-
+@login_required
 def attestations( request ):
     request_dict = get_request_dict(request)
 
@@ -43,6 +44,7 @@ def attestations( request ):
     
     return HttpResponse(html)
 
+@login_required
 def remove_attestation( request ):
     request_dict = get_request_dict(request)
 
@@ -55,7 +57,7 @@ def remove_attestation( request ):
     witness.remove_attestation( reading=reading )
     return HttpResponse("OK")
 
-
+@login_required
 def set_attestation( request ):
     request_dict = get_request_dict(request)
 

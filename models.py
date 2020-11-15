@@ -228,7 +228,7 @@ class LocationBase(PolymorphicModel):
     rank = models.PositiveIntegerField()
 
     def __str__(self):
-        return str(self.start_verse)
+        return self.reference()
 
     def reference(self, abbreviation=False):
         return self.start_verse.reference(abbreviation=abbreviation, end_verse=self.end_verse)
@@ -274,6 +274,11 @@ class LocationUBS(LocationBase):
             raise ValueError
         return str(label_number)
 
+    def category_label(self):
+        if self.category is None:
+            return "–"
+        return chr( ord('A') + self.category )
+
 class Reading(models.Model):
     text = models.TextField()
     location = models.ForeignKey(LocationBase, on_delete=models.CASCADE)
@@ -282,6 +287,7 @@ class Reading(models.Model):
         return self.text
 
     def tex(self):
+        """ Returns a string suitable for formatting in TeX. """
         return re.sub(r"<i>(.*?)</i>", "\\\\textit{\\1}", self.text)
 
     def attestations(self):

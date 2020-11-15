@@ -9,6 +9,26 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 <style>
+#collation_locations {
+	position: absolute;
+    top: 125px;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+	overflow:scroll;
+	z-index: 2;
+}
+.collation_location {
+    text-align: center;
+    margin: 5px;
+    padding: 5px;
+    color: #007AFF;
+    background-color: #dddddd;
+    cursor: pointer;    
+}
+.collation_location_selected {
+    background-color: yellow;
+}
 
 .comparison_button {
     width: 20px;
@@ -37,7 +57,7 @@
 
     <ul>
     {% for reading in location.reading_set.all %}
-        <li>{{ reading }}
+        <li>{{ reading.id }}: {{ reading }}
     {% endfor %}
     </ul>
     </div>
