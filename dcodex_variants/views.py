@@ -71,7 +71,7 @@ def set_attestation( request ):
     #response = 1
     return HttpResponse("OK" if response else "FAIL")
     
-
+@login_required
 def set_contra( request ):
     request_dict = get_request_dict(request)
 
@@ -84,6 +84,7 @@ def set_contra( request ):
     
     return HttpResponse("OK")
     
+@login_required
 def remove_contra( request ):
     request_dict = get_request_dict(request)
 
