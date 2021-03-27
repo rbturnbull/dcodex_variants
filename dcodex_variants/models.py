@@ -98,6 +98,7 @@ class FamilyWitness(WitnessBase):
     def __str__(self):
         return str(self.family)
 
+
 class Collection(models.Model):
     name = models.CharField(max_length=255)
 
@@ -279,6 +280,7 @@ class LocationUBS(LocationBase):
             return "–"
         return chr( ord('A') + self.category )
 
+
 class Reading(models.Model):
     text = models.TextField()
     location = models.ForeignKey(LocationBase, on_delete=models.CASCADE)
@@ -295,6 +297,7 @@ class Reading(models.Model):
 
     def witnesses_sigla(self):
         return " ".join( [attestation.witness_siglum() for attestation in self.attestations()] )    
+
 
 class Attestation(models.Model):
     witness = models.ForeignKey( WitnessBase, on_delete=models.CASCADE )

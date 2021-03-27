@@ -10,7 +10,7 @@ import os
 from dcodex_variants.import_ubs import *
 
 
-greek_reading_pattern = "([—…ʼ·:-]*\p{IsGreek}+|(<i>.*?</i>)+|(\(<i>see.*?<\/i>.*?\))*)((\(<i>.*?<\/i>.*?\))*(<i>.*?<\/i>)*[ ̓\.\;\, ·:-]*\p{IsGreek}*[—…ʼ\=·:\/-]*)*"
+greek_reading_pattern = "([—…ʼ·:\-]*\p{IsGreek}+|(<i>.*?</i>)+|(\(<i>see.*?<\/i>.*?\))*)((\(<i>.*?<\/i>.*?\))*(<i>.*?<\/i>)*[ ̓\.\;\, ·:\-]*\p{IsGreek}*[—…ʼ\=·:\/\-]*)*"
 
 
 def make_witness(name, corrector = "", info = ""):
@@ -79,7 +79,6 @@ def add_attestation( reading, name, corrector = "", info = "", subvariant= ""):
 
 
 def pop_witnesses_class( current_reading, witnesses_string, members, class_name, general_subvariant="" ):
-    print("Pop class:", class_name, ':', witnesses_string)
     parentheses = False
     close_parentheses = False
     pattern = class_name+"<sup>(.+?)<\/sup>"
@@ -136,7 +135,6 @@ def pop_witnesses_class( current_reading, witnesses_string, members, class_name,
 
             info = info.strip()
             
-            print(f"member_name: '{member_name}'")
             
             if class_name == "𝔓":
                 #member_name = class_name + member_name
@@ -169,6 +167,8 @@ def pop_all_classes( current_reading, text, witnesses, subvariant = "" ):
     return text, witnesses
     
 def deal_with_sups( current_reading, text, witnesses, subvariant = "" ):
+    # print("deal_with_sups", current_reading, text, witnesses, subvariant)
+
     # First get witnesses with superscripted text
     superscripted_pattern = "([^\s]+)<sup>(.+?)<\/sup>"
     for superscripted in re.findall( superscripted_pattern, text ):
@@ -178,7 +178,6 @@ def deal_with_sups( current_reading, text, witnesses, subvariant = "" ):
             corrector = "*"
             name = name[:-1]
     
-        print("superscript:", superscripted)
         
         superscript = superscripted[1].strip(", ")
         if superscript.isdigit() or superscript == 'c':
@@ -192,13 +191,14 @@ def deal_with_sups( current_reading, text, witnesses, subvariant = "" ):
     return text, witnesses    
     
 def split_witnesses( current_reading, text, subvariant = "" ):
+    # print("split_witnesses", current_reading, "text=", text, subvariant)
+
     text = text.replace( ";", "" )
     witnesses = []
     
     text, witnesses = pop_all_classes( current_reading, text, witnesses, subvariant )
     text, witnesses = deal_with_sups( current_reading, text, witnesses, subvariant )
     
-    print('text split_witnesses', text)    
     for name in text.split():
         corrector = ""
         info = ""
@@ -226,12 +226,12 @@ def strip_commas_from_sups( text ):
             break
         
         new_string += text[start:start+left] + text[start+left:start+left+right].replace( ",", "" )
-        print(left, right)
 
         start += left+right
     return new_string + text[start:]
 
 def parse_witnesses( current_reading, witnesses_string, members ):
+    print("parse_witnesses")
     witnesses_string = witnesses_string.replace( ";", "" )
     
     while witnesses_string:
@@ -239,11 +239,9 @@ def parse_witnesses( current_reading, witnesses_string, members ):
         first_space = witnesses_string.find( " " )
         first_sup = witnesses_string.find( "<sup>" )
         first_bracket = witnesses_string.find( "(" )
-#        print('while witnesses_string:', witnesses_string)
 
         if first_space >= 0 and ( first_space < first_sup or first_sup < 0 ) and ( first_space < first_bracket or first_bracket < 0 ):        # Check if space
             name = witnesses_string[:first_space]
-            print('name:', name)
             if name != ",":
                 add_attestation( current_reading, name )
             witnesses_string = witnesses_string[first_space+1:]
@@ -271,10 +269,8 @@ def parse_witnesses( current_reading, witnesses_string, members ):
             # Process the inner text
             text = witnesses_string[left_bracket+1:right_bracket].strip()
         
-            print("Inner text:", text )
             
             text = strip_commas_from_sups( text )
-            print("Inner text - no commas between sups", text )
 
             components = text.split( "," )
             for component in components:
@@ -283,30 +279,22 @@ def parse_witnesses( current_reading, witnesses_string, members ):
                 if m and len(m.group(0)) > 0:
                     subvariant = m.group(0)
                     component = component[:m.span()[0]]
-                    print('subvariant right:', subvariant, m)
             
                 else:
                     m = regex.search( "^"+greek_reading_pattern, component )
                     if m and len(m.group(0)) > 0:
                         subvariant = m.group(0)
                         component = component[m.span()[1]:]
-                        print('subvariant left:', subvariant)
                 
                     else:
                         subvariant = "Minor Difference"            
         
-                print('subvariant:', subvariant)
         
                 members += split_witnesses( current_reading, component, subvariant )    # This should be a call to this function    
         
             witnesses_string = witnesses_string[:left_bracket] + witnesses_string[right_bracket+1:]        
         else: # End of line
-            print( witnesses_string )
-            print(first_space)
-            print(first_sup)
-            print(first_bracket)
             if witnesses_string:
-                print('www:', witnesses_string)
                 add_attestation( current_reading, witnesses_string )                
             witnesses_string = ""
             break
@@ -317,7 +305,6 @@ def parse_witnesses( current_reading, witnesses_string, members ):
 
 
 def pop_brackets( witnesses_string, members ):
-    print( 'pop_brackets:', witnesses_string )
     raise
     left_bracket = witnesses_string.find("(")
     right_bracket = witnesses_string.rfind(")")
@@ -357,7 +344,6 @@ def pop_brackets( witnesses_string, members ):
         # Process the inner text
         text = witnesses_string[left_bracket+1:right_bracket].strip()
         
-        print("Inner text:", text )
         
         components = text.split( "," )
         for component in components:
@@ -365,19 +351,16 @@ def pop_brackets( witnesses_string, members ):
             if m and len(m.group(0)) > 0:
                 subvariant = m.group(0)
                 component = text[:m.span()[0]]
-                print('subvariant right:', subvariant, m)
             
             else:
                 m = regex.search( "^"+greek_reading_pattern, component )
                 if m and len(m.group(0)) > 0:
                     subvariant = m.group(0)
                     component = text[m.span()[1]:]
-                    print('subvariant left:', subvariant)
                 
                 else:
                     subvariant = "Minor Difference"            
         
-            print('subvariant:', subvariant)
         
             members += split_witnesses( component, subvariant )        
         
@@ -408,24 +391,33 @@ def import_reading_from_html(current_location, reading):
     
     reading = re.sub( r"<i>l</i> ", r"𝑙", reading )
     
-    m = regex.match( greek_reading_pattern, reading )
+
+    # Find text of this variant reading.
+    # It can be labelled manually in <reading><\reading> markup
+    m = regex.match( r"<reading>(.*)</reading>", reading )
+    if not m:
+        m = regex.match( greek_reading_pattern, reading )
     if not m:
         m = regex.match( "<i>.*?<\/i>", reading )
     
     
     if m:
         reading_text = m.group(0).strip()
+
+        # HACK - cleaner way to do this
+        reading_tags_match = regex.match(r"<reading>(.*)</reading>", reading_text )
+        if reading_tags_match:
+            reading_text = reading_tags_match.group(1).strip()
+
         if len(reading_text) == 0:
-            print("Reading length 0")
-            print("Failure!")
-            sys.exit()
+            raise Exception("Reading length 0")
+        
+
         current_reading, _ = Reading.objects.update_or_create( text=reading_text, location=current_location )
         if current_location.ausgangstext is None:
             current_location.ausgangstext = current_reading
             current_location.save()
     
-        print('reading:\t', m.group(0) )
-#                    print( m.span()[1] )
         witnesses_string = reading[m.span()[1]:]
         
 
@@ -514,7 +506,6 @@ def import_reading_from_html(current_location, reading):
         witnesses_string = witnesses_string.replace( ",|", "|" )
                                 
         witnesses_string = re.sub(r'(\(it<sup>.*)r1\)<\/sup>', r'\1r1</sup>)', witnesses_string) # Hack for John
-        print('witnesses string:\t', witnesses_string)
         
         members = []
         
@@ -522,14 +513,11 @@ def import_reading_from_html(current_location, reading):
         
         witnesses_string, members = parse_witnesses( current_reading, witnesses_string, members )
         
-        print( 'witnesses string popped:\t', witnesses_string )
 #                    print( 'members:\t', ", ".join([str(member) for member in members]) )
         
         #members += split_witnesses( witnesses_string )
         for member in members:
-            if member is None:
-                print("DHFIDHFOSDHFDF")
-            else:
+            if member is not None:
                 witnesses_counter.update( [member.name] )     
 #                    print( 'members:\t', ", ".join([str(member) for member in members]) )                        
     else:
