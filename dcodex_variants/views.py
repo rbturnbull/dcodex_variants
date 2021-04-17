@@ -29,8 +29,11 @@ def location_for_witness( request, witness_slug, location_id ):
         info = attestation.info if attestation else ""
         transcriptions = witness.family.transcriptions_at(location.start_verse)
 
-        return render(request, 'dcodex_variants/location_for_familywitness.html', 
-            {'location': location, 'witness':witness, 'manuscripts':manuscripts, 'text':text, 'info':info, 'transcriptions':transcriptions } )
+        return render(
+            request, 
+            'dcodex_variants/location_for_familywitness.html', 
+            {'location': location, 'witness':witness, 'manuscripts':manuscripts, 'text':text, 'info':info, 'transcriptions':transcriptions }
+        )
 
     return HttpResponse(f"Cannot find witness: {witness_slug}")
 

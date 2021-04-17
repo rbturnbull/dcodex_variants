@@ -111,12 +111,15 @@ class Collection(models.Model):
         witnesses = list(set(witnesses))
         return witnesses
 
+    def locations(self):
+        return self.locationbase_set.all()
+
     def write_nexus(self, filename, witnesses=None, locations=None):
         if witnesses is None:
             witnesses = self.witnessess_no_correctors()
 
         if locations is None:
-            locations = self.locationbase_set.all()
+            locations = self.locations()
 
         state_counts = np.asarray([location.reading_set.count() for location in locations])
         max_states = state_counts.max()
@@ -242,6 +245,7 @@ class LocationBase(PolymorphicModel):
 
     def prev(self):
         return type(self).objects.filter(collection=self.collection, rank__lt=self.rank).last()
+
 
 class Location(LocationBase):
     pass
