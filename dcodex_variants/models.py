@@ -180,6 +180,95 @@ class Collection(models.Model):
             file.write('end;\n')
 
 
+    def write_beast_patch( self, beast_patch_filename, locations=None, atext_probability=0.6, only_category_A=False, clock_name="StrictClock" ):
+        collection = self
+        if locations is None:
+            locations = collection.locations()
+                
+        family = str(collection)
+
+        index = 0
+        with open(beast_patch_filename, "w") as file:
+            file.write(f'<!-- START PATCH -->\n')
+            for location in locations:
+                index += 1 # Beast starts at 1
+
+                rate_symbols = []
+                readings = list(location.reading_set.all())
+                if len(readings) <= 1:
+                    continue
+                    raise Exception(f"Only 1 reading in location {location}")
+                    
+                print(readings, 'readings')
+                state_count = len(readings)
+                for start_reading_index, start_reading in enumerate(readings):
+                    for end_reading_index, end_reading in enumerate(readings):
+                        if start_reading == end_reading:
+                            continue
+
+                        if start_reading == location.byz:
+                            rate_symbol = "FROM_BYZ_RATE"
+                        elif end_reading == location.byz:
+                            rate_symbol = "TO_BYZ_RATE"                            
+                        else:
+                            rate_symbol = "DEFAULT_RATE"                                                        
+
+                        rate_symbols.append( rate_symbol )
+
+                freq = 1.0/state_count
+                freq_string = " ".join([str(freq) for _ in range(state_count)])
+
+                file.write(f'<distribution id="morphTreeLikelihood.{family}.character{index}" spec="TreeLikelihood" useAmbiguities="true" branchRateModel="@{clock_name}" tree="@Tree.t:{family}">\n')
+                file.write(f'\t<data\n')
+                file.write(f'\t\t\tid="filter{index}"\n')
+                file.write(f'\t\t\tspec="FilteredAlignment"\n')
+                file.write(f'\t\t\tdata="@{family}"\n')
+                file.write(f'\t\t\tfilter="{index}">\n')
+                                            
+                file.write(f'\t\t<userDataType id="morphDataType.{family}.character{index}" spec="beast.evolution.datatype.StandardData" ambiguities="REPLACE_AMBIGUTIIES_HERE" nrOfStates="{state_count}"/>\n')
+                                        
+                file.write(f'\t</data>\n')
+                                    
+                file.write(f'\t<siteModel id="morphSiteModel.s:{family}.character{index}" spec="SiteModel">\n')
+                                            
+                file.write(f'\t\t<parameter id="mutationRate.s:.{family}.character{index}" spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>\n')
+                                            
+                file.write(f'\t\t<parameter id="gammaShape.s:.{family}.character{index}" spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>\n')
+                                            
+                #file.write(f'\t\t<substModel id="LewisMK.s:.{family}.character{index}" spec="LewisMK" datatype="@morphDataType.{family}.character{index}"/>\n')
+                file.write(f'\t\t<substModel id="SubstModel.{family}.character{index}" spec="GeneralSubstitutionModel">\n')
+                
+                
+                file.write(f'\t\t\t<frequencies id="freqs.{family}.character{index}" spec="Frequencies">\n')
+                file.write(f'\t\t\t\t<frequencies id="frequencies.{family}.character{index}" spec="parameter.RealParameter" value="{freq_string}" estimate="false"/>\n')
+                file.write(f'\t\t\t</frequencies>\n')
+                
+                
+                file.write(f'\t\t\t<parameter id="rates.{family}.character{index}" spec="parameter.CompoundValuable" name="rates">\n')
+                for rate_symbol in rate_symbols:
+                    file.write(f'\t\t\t\t<var idref="{rate_symbol}"/>\n')
+                    #file.write(f'\t\t\t\t<var spec="parameter.RealParameter" characterName="Character391" codeMap="0=0, 1=1, ? =0 1 " states="2" value="State0., State1"/>\n')    
+                file.write(f'\t\t\t</parameter>\n')
+                file.write(f'\t\t</substModel>\n')
+
+                #<rates id='relativeGeoRates' spec='parameter.RealParameter' value='1.' dimension='3'/>
+                
+                                        
+                file.write(f'\t</siteModel>\n')
+
+                if location.ausgangstext and (only_category_A or location.category == location.CategoryUBS.A):
+                    not_atext_probability = (1.0 - root_probability)/(location.reading_set.count() - 1)
+                    
+                    not_atext_probability_str = str(not_atext_probability)
+                    rootfreqs = [str(atext_probability) if location.ausgangstext == reading else not_atext_probability_str for reading in location.reading_set.all()]
+                    rootfreq_string = " ".join(rootfreqs)
+                    # print(rootfreq_string, location.reading_set.count())
+                    file.write(f'\t<rootFrequencies id="rootfreqs.{family}.character{index}" spec="Frequencies">\n')
+                    file.write(f'\t\t<frequencies id="rootfrequencies.{family}.character{index}" spec="parameter.RealParameter" value="{rootfreq_string}" estimate="false"/>\n')
+                    file.write(f'\t</rootFrequencies>\n')
+
+                file.write(f'</distribution>\n')
+            file.write(f'<!-- END PATCH -->\n')        
 
 
     def write_carlson( self, file, include_ubs=False ):
