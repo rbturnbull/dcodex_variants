@@ -335,6 +335,13 @@ class LocationBase(PolymorphicModel):
     def prev(self):
         return type(self).objects.filter(collection=self.collection, rank__lt=self.rank).last()
 
+    def verses(self):
+        verse_class = type(self.start_verse)
+        end_verse = self.end_verse
+        if not end_verse:
+            end_verse = self.start_verse
+        return verse_class.objects.filter(rank__gte=self.start_verse.rank, rank__lte=end_verse.rank)
+
 
 class Location(LocationBase):
     pass
@@ -413,3 +420,12 @@ class Contra(models.Model):
     attestation = models.ForeignKey( Attestation, on_delete=models.CASCADE )
     manuscript = models.ForeignKey( Manuscript, on_delete=models.CASCADE )
     verse = models.ForeignKey( Verse, on_delete=models.CASCADE )
+
+
+class ExtantVerse(models.Model):
+    """ A verse where a witness is extant. """
+    witness = models.ForeignKey( WitnessBase, on_delete=models.CASCADE )
+    verse = models.ForeignKey( Verse, on_delete=models.CASCADE )
+
+    def __str__(self):
+        return f"{self.witness} {self.verse}"
