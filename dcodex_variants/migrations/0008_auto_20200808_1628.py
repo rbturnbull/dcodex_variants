@@ -7,27 +7,31 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcodex_variants', '0007_auto_20200804_2137'),
+        ("dcodex_variants", "0007_auto_20200804_2137"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='collection',
-            name='locations',
+            model_name="collection",
+            name="locations",
         ),
         migrations.RemoveField(
-            model_name='locationubs',
-            name='rank',
+            model_name="locationubs",
+            name="rank",
         ),
         migrations.AddField(
-            model_name='locationbase',
-            name='collection',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='dcodex_variants.Collection'),
+            model_name="locationbase",
+            name="collection",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="dcodex_variants.Collection",
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='locationbase',
-            name='rank',
+            model_name="locationbase",
+            name="rank",
             field=models.PositiveIntegerField(default=0),
             preserve_default=False,
         ),

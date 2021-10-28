@@ -9,128 +9,292 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('dcodex', '0022_auto_20200803_1646'),
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("dcodex", "0022_auto_20200803_1646"),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LocationBase',
+            name="LocationBase",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('end_verse', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='variant_end_verse', to='dcodex.Verse')),
-                ('polymorphic_ctype', models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='polymorphic_dcodex_variants.locationbase_set+', to='contenttypes.ContentType')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "end_verse",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="variant_end_verse",
+                        to="dcodex.Verse",
+                    ),
+                ),
+                (
+                    "polymorphic_ctype",
+                    models.ForeignKey(
+                        editable=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="polymorphic_dcodex_variants.locationbase_set+",
+                        to="contenttypes.ContentType",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
-                'base_manager_name': 'objects',
+                "abstract": False,
+                "base_manager_name": "objects",
             },
         ),
         migrations.CreateModel(
-            name='Reading',
+            name="Reading",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='WitnessBase',
+            name="WitnessBase",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('polymorphic_ctype', models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='polymorphic_dcodex_variants.witnessbase_set+', to='contenttypes.ContentType')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "polymorphic_ctype",
+                    models.ForeignKey(
+                        editable=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="polymorphic_dcodex_variants.witnessbase_set+",
+                        to="contenttypes.ContentType",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
-                'base_manager_name': 'objects',
+                "abstract": False,
+                "base_manager_name": "objects",
             },
         ),
         migrations.CreateModel(
-            name='Location',
+            name="Location",
             fields=[
-                ('locationbase_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='dcodex_variants.LocationBase')),
+                (
+                    "locationbase_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="dcodex_variants.LocationBase",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
-                'base_manager_name': 'objects',
+                "abstract": False,
+                "base_manager_name": "objects",
             },
-            bases=('dcodex_variants.locationbase',),
+            bases=("dcodex_variants.locationbase",),
         ),
         migrations.CreateModel(
-            name='SiglumWitness',
+            name="SiglumWitness",
             fields=[
-                ('witnessbase_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='dcodex_variants.WitnessBase')),
-                ('siglum', models.CharField(max_length=255)),
+                (
+                    "witnessbase_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="dcodex_variants.WitnessBase",
+                    ),
+                ),
+                ("siglum", models.CharField(max_length=255)),
             ],
             options={
-                'abstract': False,
-                'base_manager_name': 'objects',
+                "abstract": False,
+                "base_manager_name": "objects",
             },
-            bases=('dcodex_variants.witnessbase',),
+            bases=("dcodex_variants.witnessbase",),
         ),
         migrations.AddField(
-            model_name='locationbase',
-            name='readings',
-            field=models.ManyToManyField(to='dcodex_variants.Reading'),
+            model_name="locationbase",
+            name="readings",
+            field=models.ManyToManyField(to="dcodex_variants.Reading"),
         ),
         migrations.AddField(
-            model_name='locationbase',
-            name='start_verse',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='variant_start_verse', to='dcodex.Verse'),
+            model_name="locationbase",
+            name="start_verse",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="variant_start_verse",
+                to="dcodex.Verse",
+            ),
         ),
         migrations.CreateModel(
-            name='Attestation',
+            name="Attestation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField(blank=True, default=None, null=True)),
-                ('info', models.TextField(blank=True, default=None, null=True)),
-                ('corrector', models.PositiveIntegerField(blank=True, default=None, null=True)),
-                ('reading', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcodex_variants.Reading')),
-                ('witness', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcodex_variants.WitnessBase')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField(blank=True, default=None, null=True)),
+                ("info", models.TextField(blank=True, default=None, null=True)),
+                (
+                    "corrector",
+                    models.PositiveIntegerField(blank=True, default=None, null=True),
+                ),
+                (
+                    "reading",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="dcodex_variants.Reading",
+                    ),
+                ),
+                (
+                    "witness",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="dcodex_variants.WitnessBase",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ManuscriptWitness',
+            name="ManuscriptWitness",
             fields=[
-                ('witnessbase_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='dcodex_variants.WitnessBase')),
-                ('manuscript', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcodex.Manuscript')),
+                (
+                    "witnessbase_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="dcodex_variants.WitnessBase",
+                    ),
+                ),
+                (
+                    "manuscript",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="dcodex.Manuscript",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
-                'base_manager_name': 'objects',
+                "abstract": False,
+                "base_manager_name": "objects",
             },
-            bases=('dcodex_variants.witnessbase',),
+            bases=("dcodex_variants.witnessbase",),
         ),
         migrations.CreateModel(
-            name='LocationUBS',
+            name="LocationUBS",
             fields=[
-                ('locationbase_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='dcodex_variants.LocationBase')),
-                ('category', models.IntegerField(choices=[(1, 'A'), (2, 'B'), (3, 'C'), (4, 'D')])),
-                ('ausgangstext', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ausgangstext_reading', to='dcodex_variants.Reading')),
-                ('byz', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='byz_reading', to='dcodex_variants.Reading')),
+                (
+                    "locationbase_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="dcodex_variants.LocationBase",
+                    ),
+                ),
+                (
+                    "category",
+                    models.IntegerField(
+                        choices=[(1, "A"), (2, "B"), (3, "C"), (4, "D")]
+                    ),
+                ),
+                (
+                    "ausgangstext",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ausgangstext_reading",
+                        to="dcodex_variants.Reading",
+                    ),
+                ),
+                (
+                    "byz",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="byz_reading",
+                        to="dcodex_variants.Reading",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
-                'base_manager_name': 'objects',
+                "abstract": False,
+                "base_manager_name": "objects",
             },
-            bases=('dcodex_variants.locationbase',),
+            bases=("dcodex_variants.locationbase",),
         ),
         migrations.CreateModel(
-            name='FamilyWitness',
+            name="FamilyWitness",
             fields=[
-                ('witnessbase_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='dcodex_variants.WitnessBase')),
-                ('family', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcodex.Family')),
+                (
+                    "witnessbase_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="dcodex_variants.WitnessBase",
+                    ),
+                ),
+                (
+                    "family",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="dcodex.Family"
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
-                'base_manager_name': 'objects',
+                "abstract": False,
+                "base_manager_name": "objects",
             },
-            bases=('dcodex_variants.witnessbase',),
+            bases=("dcodex_variants.witnessbase",),
         ),
         migrations.CreateModel(
-            name='Collection',
+            name="Collection",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('locations', models.ManyToManyField(to='dcodex_variants.Location')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("locations", models.ManyToManyField(to="dcodex_variants.Location")),
             ],
         ),
     ]

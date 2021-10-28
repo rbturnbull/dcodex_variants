@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcodex_variants', '0003_auto_20200804_2134'),
+        ("dcodex_variants", "0003_auto_20200804_2134"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='locationubs',
-            name='category',
-            field=models.IntegerField(blank=True, choices=[(1, 'A'), (2, 'B'), (3, 'C'), (4, 'D')], default=None, null=True),
+            model_name="locationubs",
+            name="category",
+            field=models.IntegerField(
+                blank=True,
+                choices=[(1, "A"), (2, "B"), (3, "C"), (4, "D")],
+                default=None,
+                null=True,
+            ),
         ),
     ]

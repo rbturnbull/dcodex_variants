@@ -1,1 +1,1 @@
-default_app_config = 'dcodex_variants.apps.DcodexVariantsConfig'
+default_app_config = "dcodex_variants.apps.DcodexVariantsConfig"

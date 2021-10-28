@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcodex_variants', '0006_auto_20200804_2137'),
+        ("dcodex_variants", "0006_auto_20200804_2137"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='collection',
-            name='locations',
-            field=models.ManyToManyField(to='dcodex_variants.LocationBase'),
+            model_name="collection",
+            name="locations",
+            field=models.ManyToManyField(to="dcodex_variants.LocationBase"),
         ),
     ]

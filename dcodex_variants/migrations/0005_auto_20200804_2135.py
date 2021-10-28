@@ -7,18 +7,32 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcodex_variants', '0004_auto_20200804_2135'),
+        ("dcodex_variants", "0004_auto_20200804_2135"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='locationubs',
-            name='ausgangstext',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ausgangstext_reading', to='dcodex_variants.Reading'),
+            model_name="locationubs",
+            name="ausgangstext",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="ausgangstext_reading",
+                to="dcodex_variants.Reading",
+            ),
         ),
         migrations.AlterField(
-            model_name='locationubs',
-            name='byz',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='byz_reading', to='dcodex_variants.Reading'),
+            model_name="locationubs",
+            name="byz",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="byz_reading",
+                to="dcodex_variants.Reading",
+            ),
         ),
     ]

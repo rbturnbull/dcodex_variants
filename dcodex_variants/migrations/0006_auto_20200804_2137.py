@@ -7,13 +7,16 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcodex_variants', '0005_auto_20200804_2135'),
+        ("dcodex_variants", "0005_auto_20200804_2135"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reading',
-            name='location',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcodex_variants.LocationBase'),
+            model_name="reading",
+            name="location",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="dcodex_variants.LocationBase",
+            ),
         ),
     ]

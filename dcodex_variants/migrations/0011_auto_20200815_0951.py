@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcodex', '0025_auto_20200809_1536'),
-        ('dcodex_variants', '0010_contrarymanuscript'),
+        ("dcodex", "0025_auto_20200809_1536"),
+        ("dcodex_variants", "0010_contrarymanuscript"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='ContraryManuscript',
-            new_name='Contra',
+            old_name="ContraryManuscript",
+            new_name="Contra",
         ),
     ]

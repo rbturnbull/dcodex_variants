@@ -7,36 +7,40 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcodex_variants', '0001_initial'),
+        ("dcodex_variants", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='locationbase',
-            name='readings',
+            model_name="locationbase",
+            name="readings",
         ),
         migrations.AddField(
-            model_name='collection',
-            name='name',
+            model_name="collection",
+            name="name",
             field=models.CharField(default=None, max_length=255),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='locationubs',
-            name='apparatus_html',
+            model_name="locationubs",
+            name="apparatus_html",
             field=models.TextField(default=None),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='locationubs',
-            name='rank',
+            model_name="locationubs",
+            name="rank",
             field=models.PositiveIntegerField(default=None),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='reading',
-            name='location',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='dcodex_variants.Location'),
+            model_name="reading",
+            name="location",
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="dcodex_variants.Location",
+            ),
             preserve_default=False,
         ),
     ]

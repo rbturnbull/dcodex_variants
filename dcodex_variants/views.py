@@ -11,18 +11,19 @@ from dcodex.models import VerseTranscription
 
 from .models import *
 
+
 @login_required
 def index(request):
     return HttpResponse("Hello, world. You're at the DCodex Variants index.")
-    
+
 
 @login_required
-def location_for_witness( request, witness_slug, location_id ):
-    location = get_object_or_404(LocationUBS, id=location_id) 
+def location_for_witness(request, witness_slug, location_id):
+    location = get_object_or_404(LocationUBS, id=location_id)
 
-    witness = FamilyWitness.objects.filter( family__name=witness_slug ).first()
+    witness = FamilyWitness.objects.filter(family__name=witness_slug).first()
     if witness:
-        manuscripts = witness.family.manuscripts_at( location.start_verse )
+        manuscripts = witness.family.manuscripts_at(location.start_verse)
         transcriptions = witness.family.transcriptions_at(location.start_verse)
 
     if not witness:
@@ -33,21 +34,29 @@ def location_for_witness( request, witness_slug, location_id ):
             transcriptions = [manuscript.transcription(location.start_verse)]
 
     if witness:
-        attestation = witness.attestations_at( location ).first()
+        attestation = witness.attestations_at(location).first()
         text = attestation.text if attestation else ""
         info = attestation.info if attestation else ""
 
         return render(
-            request, 
-            'dcodex_variants/location_for_familywitness.html', 
-            {'location': location, 'witness':witness, 'manuscripts':manuscripts, 'text':text, 'info':info, 'transcriptions':transcriptions }
+            request,
+            "dcodex_variants/location_for_familywitness.html",
+            {
+                "location": location,
+                "witness": witness,
+                "manuscripts": manuscripts,
+                "text": text,
+                "info": info,
+                "transcriptions": transcriptions,
+            },
         )
 
     return HttpResponse(f"Cannot find witness: {witness_slug}")
 
+
 @login_required
-def next_location_for_witness( request, witness_slug ):
-    witness = FamilyWitness.objects.filter( family__name=witness_slug ).first()
+def next_location_for_witness(request, witness_slug):
+    witness = FamilyWitness.objects.filter(family__name=witness_slug).first()
     if not witness:
         manuscript = Manuscript.find(witness_slug)
         if manuscript:
@@ -56,77 +65,99 @@ def next_location_for_witness( request, witness_slug ):
     if not witness:
         raise Exception(f"Cannot find witness {witness}")
 
-    attested_location_ids = Attestation.objects.filter(witness=witness).values_list("reading__location__id", flat=True)
+    attested_location_ids = Attestation.objects.filter(witness=witness).values_list(
+        "reading__location__id", flat=True
+    )
 
     location = LocationBase.objects.exclude(id__in=attested_location_ids).first()
 
     if location:
-        return location_for_witness( request, witness_slug, location.id )
+        return location_for_witness(request, witness_slug, location.id)
 
     raise Exception(f"Cannot find locations for witness {witness}")
 
+
 @login_required
-def attestations( request ):
+def attestations(request):
     request_dict = get_request_dict(request)
 
-    reading_id = request_dict.get('reading_id')
-    location_id = request_dict.get('location_id')
-    location = get_object_or_404(Location, id=location_id) 
-    
+    reading_id = request_dict.get("reading_id")
+    location_id = request_dict.get("location_id")
+    location = get_object_or_404(Location, id=location_id)
+
     return HttpResponse(html)
 
+
 @login_required
-def remove_attestation( request ):
+def remove_attestation(request):
     request_dict = get_request_dict(request)
 
-    reading_id = request_dict.get('reading_id')
-    reading = get_object_or_404(Reading, id=reading_id) 
+    reading_id = request_dict.get("reading_id")
+    reading = get_object_or_404(Reading, id=reading_id)
 
-    witness_id = request_dict.get('witness_id')
-    witness = get_object_or_404(WitnessBase, id=witness_id) 
-    
-    witness.remove_attestation( reading=reading )
+    witness_id = request_dict.get("witness_id")
+    witness = get_object_or_404(WitnessBase, id=witness_id)
+
+    witness.remove_attestation(reading=reading)
     return HttpResponse("OK")
 
+
 @login_required
-def set_attestation( request ):
+def set_attestation(request):
     request_dict = get_request_dict(request)
 
-    reading_id = request_dict.get('reading_id')
-    reading = get_object_or_404(Reading, id=reading_id) 
+    reading_id = request_dict.get("reading_id")
+    reading = get_object_or_404(Reading, id=reading_id)
 
-    witness_id = request_dict.get('witness_id')
-    witness = get_object_or_404(WitnessBase, id=witness_id) 
-    
-    response = witness.set_attestation( reading=reading, text=request_dict.get('text'), info=request_dict.get('info') )
-    #response = 1
+    witness_id = request_dict.get("witness_id")
+    witness = get_object_or_404(WitnessBase, id=witness_id)
+
+    response = witness.set_attestation(
+        reading=reading, text=request_dict.get("text"), info=request_dict.get("info")
+    )
+    # response = 1
     return HttpResponse("OK" if response else "FAIL")
-    
+
+
 @login_required
-def set_contra( request ):
+def set_contra(request):
     request_dict = get_request_dict(request)
 
-    transcription = get_object_or_404(VerseTranscription, id=request_dict.get('transcription_id'))
-    witness = get_object_or_404(FamilyWitness, id=request_dict.get('witness_id'))
+    transcription = get_object_or_404(
+        VerseTranscription, id=request_dict.get("transcription_id")
+    )
+    witness = get_object_or_404(FamilyWitness, id=request_dict.get("witness_id"))
 
-    attestations = Attestation.objects.filter( witness=witness, reading__location__id=request_dict.get('location_id'))
+    attestations = Attestation.objects.filter(
+        witness=witness, reading__location__id=request_dict.get("location_id")
+    )
     for attestation in attestations:
-        Contra.objects.get_or_create( attestation=attestation, manuscript=transcription.manuscript, verse=transcription.verse )
-    
+        Contra.objects.get_or_create(
+            attestation=attestation,
+            manuscript=transcription.manuscript,
+            verse=transcription.verse,
+        )
+
     return HttpResponse("OK")
-    
+
+
 @login_required
-def remove_contra( request ):
+def remove_contra(request):
     request_dict = get_request_dict(request)
 
-    transcription = get_object_or_404(VerseTranscription, id=request_dict.get('transcription_id'))
-    witness = get_object_or_404(FamilyWitness, id=request_dict.get('witness_id'))
+    transcription = get_object_or_404(
+        VerseTranscription, id=request_dict.get("transcription_id")
+    )
+    witness = get_object_or_404(FamilyWitness, id=request_dict.get("witness_id"))
 
-    attestations = Attestation.objects.filter( witness=witness, reading__location__id=request_dict.get('location_id'))
+    attestations = Attestation.objects.filter(
+        witness=witness, reading__location__id=request_dict.get("location_id")
+    )
     for attestation in attestations:
-        Contra.objects.filter( attestation=attestation, manuscript=transcription.manuscript, verse=transcription.verse ).delete()
-    
-    return HttpResponse("OK")
-    
+        Contra.objects.filter(
+            attestation=attestation,
+            manuscript=transcription.manuscript,
+            verse=transcription.verse,
+        ).delete()
 
-    
+    return HttpResponse("OK")
