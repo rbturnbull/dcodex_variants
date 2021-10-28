@@ -51,6 +51,9 @@
             <a href="{% url 'location_for_witness' witness location.next.id %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-right"></i></a>        
         </div>
     {% endif %}
+        <div id="untagged" class='inputHeader inputButton noselect'>
+            <a href="{% url 'next_location_for_witness' witness %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-angle-double-right"></i></a>        
+        </div>
     </div>
 
     <h2>{{ location.start_verse }}</span></h2>

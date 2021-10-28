@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "dcodex_variants"
+version = "0.1.0"
+description = "An extension for DCodex to organize textual variants."
+authors = ["Robert Turnbull <robert.turnbull@unimelb.edu.au>"]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/rbturnbull/dcodex_variants"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+Django = "^3.2.6"
+dcodex = "^1.0.3"
+regex = "^2021.10.23"
+
+
+[tool.poetry.dev-dependencies]
+black = "^21.9b0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
