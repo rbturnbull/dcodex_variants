@@ -16,6 +16,7 @@ regex = "^2021.10.23"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"
+coverage = "^6.0.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
