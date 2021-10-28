@@ -1,6 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
@@ -17,6 +15,7 @@ from .models import *
 def index(request):
     return HttpResponse("Hello, world. You're at the DCodex Variants index.")
     
+
 @login_required
 def location_for_witness( request, witness_slug, location_id ):
     location = get_object_or_404(LocationUBS, id=location_id) 
@@ -24,10 +23,19 @@ def location_for_witness( request, witness_slug, location_id ):
     witness = FamilyWitness.objects.filter( family__name=witness_slug ).first()
     if witness:
         manuscripts = witness.family.manuscripts_at( location.start_verse )
+        transcriptions = witness.family.transcriptions_at(location.start_verse)
+
+    if not witness:
+        manuscript = Manuscript.find(witness_slug)
+        if manuscript:
+            witness = ManuscriptWitness.objects.filter(manuscript=manuscript).first()
+            manuscripts = Manuscript.objects.filter(id=manuscript.id)
+            transcriptions = [manuscript.transcription(location.start_verse)]
+
+    if witness:
         attestation = witness.attestations_at( location ).first()
         text = attestation.text if attestation else ""
         info = attestation.info if attestation else ""
-        transcriptions = witness.family.transcriptions_at(location.start_verse)
 
         return render(
             request, 
@@ -36,6 +44,26 @@ def location_for_witness( request, witness_slug, location_id ):
         )
 
     return HttpResponse(f"Cannot find witness: {witness_slug}")
+
+@login_required
+def next_location_for_witness( request, witness_slug ):
+    witness = FamilyWitness.objects.filter( family__name=witness_slug ).first()
+    if not witness:
+        manuscript = Manuscript.find(witness_slug)
+        if manuscript:
+            witness = ManuscriptWitness.objects.filter(manuscript=manuscript).first()
+
+    if not witness:
+        raise Exception(f"Cannot find witness {witness}")
+
+    attested_location_ids = Attestation.objects.filter(witness=witness).values_list("reading__location__id", flat=True)
+
+    location = LocationBase.objects.exclude(id__in=attested_location_ids).first()
+
+    if location:
+        return location_for_witness( request, witness_slug, location.id )
+
+    raise Exception(f"Cannot find locations for witness {witness}")
 
 @login_required
 def attestations( request ):

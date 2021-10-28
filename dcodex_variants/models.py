@@ -89,7 +89,7 @@ class ManuscriptWitness(WitnessBase):
     manuscript = models.ForeignKey( Manuscript, on_delete=models.CASCADE )
 
     def __str__(self):
-        return str(self.manuscript)
+        return str(self.manuscript.siglum)
 
 
 class FamilyWitness(WitnessBase):

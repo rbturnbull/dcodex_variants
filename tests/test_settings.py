@@ -5,9 +5,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = 'akfjnakfcjaldunfkhaldfhalshf'
 INSTALLED_APPS = [
-    'django.contrib.auth',
+    "django.contrib.sites",
+    "django.contrib.auth",
     "django.contrib.contenttypes",
-    'polymorphic',    
+    "easy_thumbnails",
+    "filer",
+    "mptt",
+    "imagedeck",
+    "polymorphic",
     "dcodex",
     "dcodex_variants",
     "tests",
@@ -30,3 +35,4 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"  # for django 3.2

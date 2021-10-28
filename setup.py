@@ -1,13 +1,6 @@
-from setuptools import setup
+#!/usr/bin/env python
 
-requirements = [
-    'Django>3',
-    'django-polymorphic',
-    "regex",
-]
+import setuptools
 
-setup(
-    install_requires=requirements,
-)
-
-
+if __name__ == "__main__":
+    setuptools.setup()
