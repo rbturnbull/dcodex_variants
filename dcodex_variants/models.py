@@ -1,8 +1,10 @@
-from django.db import models
-from polymorphic.models import PolymorphicModel
-from dcodex.models import Verse, Manuscript, Family
 import re
 import numpy as np
+from django.db import models
+from django.utils.text import slugify
+from polymorphic.models import PolymorphicModel
+from dcodex.models import Verse, Manuscript, Family
+
 
 
 def category_from_siglum(siglum):
@@ -56,8 +58,7 @@ class WitnessBase(PolymorphicModel):
         return (
             Attestation.objects.filter(
                 reading=reading, witness=self, corrector=corrector
-            ).count()
-            > 0
+            ).count() > 0
         )
 
     def set_attestation(self, reading, corrector=None, info=None, text=None):
@@ -132,7 +133,7 @@ class ManuscriptWitness(WitnessBase):
     manuscript = models.ForeignKey(Manuscript, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.manuscript.siglum)
+        return str(self.manuscript.short_name())
 
 
 class FamilyWitness(WitnessBase):
@@ -159,9 +160,14 @@ class Collection(models.Model):
     def locations(self):
         return self.locationbase_set.all()
 
-    def write_nexus(self, filename, witnesses=None, locations=None):
+    def write_nexus(self, filename, witnesses=None, locations=None, min_locations=1, exclude_sigla=None):
         if witnesses is None:
             witnesses = self.witnessess_no_correctors()
+
+        witnesses = [witness for witness in witnesses if witness.locations_attested(collection=self).count() >= min_locations]
+        
+        if exclude_sigla:
+            witnesses = list(filter( lambda witness : ( str(witness) not in exclude_sigla ), witnesses ))
 
         if locations is None:
             locations = self.locations()
@@ -209,6 +215,7 @@ class Collection(models.Model):
             file.write("\tmatrix\n")
             for witness in witnesses:
                 siglum = str(witness)
+                print(siglum)
 
                 # Write the siglum and leave a gap for the margin
                 file.write("\t%s%s" % (siglum, " " * (margin - len(siglum))))
