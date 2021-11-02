@@ -2,8 +2,12 @@ from django.urls import path
 
 from . import views
 
+app_name = "dcodex_variants"
 urlpatterns = [
-    path("", views.index, name="index"),
+    path("", views.CollectionListView.as_view(), name="index"),
+    path("collections/", views.CollectionListView.as_view(), name="collection-list"),
+    path("collections/<int:pk>/", views.CollectionDetailView.as_view(), name="collection-detail"),
+    path("collections/<int:collection_pk>/<int:pk>/", views.LocationDetailView.as_view(), name="location-detail"),
     path(
         "<str:witness_slug>/<int:location_id>/",
         views.location_for_witness,

@@ -2,15 +2,54 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
+from django.views import generic
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from dcodex.util import get_request_dict
-import logging
-
 
 from dcodex.models import VerseTranscription
 
-from .models import *
+from . import models
 
+from django.http import HttpResponse
+
+
+#################################################
+###    Collection Views 
+#################################################
+
+class CollectionListView(PermissionRequiredMixin, generic.ListView):
+    model = models.Collection
+    extra_context = dict(title="Collections")
+    permission_required = "dcodex_variants.view_collection"
+    # pagination = 50
+
+
+class CollectionDetailView(PermissionRequiredMixin, generic.DetailView):
+    model = models.Collection
+    permission_required = "dcodex_variants.view_collection"
+    slug_field = 'pk' # change to slug
+
+
+#################################################
+###    Location Views 
+#################################################
+
+class LocationDetailView(PermissionRequiredMixin, generic.DetailView):
+    model = models.Location
+    permission_required = "dcodex_variants.view_collection"
+    template_name = "dcodex_variants/location_detail.html"
+    context_object_name = "location"
+
+    def get_object(self, queryset=None):
+        collection = models.Collection.objects.get(pk=self.kwargs['collection_pk'])
+        return collection.locations().filter(pk=self.kwargs['pk']).first()
+
+
+
+#################################################
+###    Other Views 
+#################################################
 
 @login_required
 def index(request):

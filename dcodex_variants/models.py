@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.text import slugify
 from polymorphic.models import PolymorphicModel
 from dcodex.models import Verse, Manuscript, Family
-
+from django.urls import reverse
 
 
 def category_from_siglum(siglum):
@@ -148,6 +148,9 @@ class Collection(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("dcodex_variants:collection-detail", kwargs={"pk": self.pk})
 
     def witnessess_no_correctors(self):
         witnesses = WitnessBase.objects.filter(
@@ -438,6 +441,9 @@ class LocationBase(PolymorphicModel):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     rank = models.PositiveIntegerField()
 
+    def get_absolute_url(self):
+        return reverse("dcodex_variants:location-detail", kwargs={"pk": self.pk, "collection_pk":self.collection.pk})
+
     def __str__(self):
         return self.reference()
 
@@ -562,6 +568,8 @@ class Attestation(models.Model):
             return f"{witness_siglum}-*"
         return f"{witness_siglum}-{self.corrector}"
 
+    def __str__(self):
+        return self.witness_siglum()
 
 class Contra(models.Model):
     """ A manuscript in a family witness that is contrary to the family text. """

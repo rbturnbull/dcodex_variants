@@ -1,0 +1,25 @@
+{% extends "dcodex/base_logo.html" %}
+
+{% load static dcodex_tags dcodex_variants_tags %}
+
+{% block title %}{{ location }}{% endblock %}
+
+
+{% block content %}
+  <div class="container ">
+    <h1>Locaton: {{location}} (<a href='{{ location.collection.get_absolute_url }}'>{{ location.collection }}</a>)</h1>
+
+    <h2>Readings:</h2>
+    <ul>
+      {% for reading in location.reading_set.all %}
+        <li>
+            <h3>{{ reading }}</h3>
+            {% for attestation in reading.attestation_set.all %}
+                {{attestation.witness_siglum}}
+            {% endfor %}
+        </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+{% endblock %}
