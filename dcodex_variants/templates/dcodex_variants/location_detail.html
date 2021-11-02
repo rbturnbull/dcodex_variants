@@ -15,7 +15,7 @@
         <li>
             <h3>{{ reading }}</h3>
             {% for attestation in reading.attestation_set.all %}
-                {{attestation.witness_siglum}}
+                <a href='{{ attestation.witness.get_absolute_url }}'>{{attestation.witness_siglum}}</a>
             {% endfor %}
         </li>
       {% endfor %}

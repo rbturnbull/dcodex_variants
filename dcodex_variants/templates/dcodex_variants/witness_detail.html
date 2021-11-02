@@ -1,0 +1,20 @@
+{% extends "dcodex/base_logo.html" %}
+
+{% load static dcodex_tags dcodex_variants_tags %}
+
+{% block title %}{{ witness }}{% endblock %}
+
+
+{% block content %}
+  <div class="container ">
+    <h1>{{witness}}</h1>
+
+    <h2>Attestations</h2>
+    <ul>
+      {% for attestation in witness.attestation_set.all %}
+        <li><a href='{{ attestation.reading.location.get_absolute_url }}'>{{ attestation.reading.location }}</a> - {{attestation.reading}}</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+{% endblock %}

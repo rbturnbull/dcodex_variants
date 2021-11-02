@@ -54,6 +54,9 @@ def category_from_siglum(siglum):
 
 
 class WitnessBase(PolymorphicModel):
+    def get_absolute_url(self):
+        return reverse("dcodex_variants:witness-detail", kwargs={"pk": self.pk})
+    
     def attests_reading(self, reading, corrector=None):
         return (
             Attestation.objects.filter(

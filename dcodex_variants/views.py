@@ -48,6 +48,21 @@ class LocationDetailView(PermissionRequiredMixin, generic.DetailView):
 
 
 #################################################
+###    Witness Views 
+#################################################
+
+class WitnessDetailView(PermissionRequiredMixin, generic.DetailView):
+    model = models.WitnessBase
+    permission_required = "dcodex_variants.view_collection"
+    template_name = "dcodex_variants/witness_detail.html"
+    context_object_name = "witness"
+
+    def get_object(self, queryset=None):
+        return models.WitnessBase.objects.get(pk=self.kwargs['pk'])
+
+
+
+#################################################
 ###    Other Views 
 #################################################
 
