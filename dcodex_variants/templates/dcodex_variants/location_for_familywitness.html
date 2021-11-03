@@ -43,16 +43,16 @@
     <div class="row">
     {% if location.prev %}
         <div id="prev_location" class='inputHeader inputButton noselect'>
-            <a href="{% url 'location_for_witness' witness location.prev.id %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-left"></i></a>
+            <a href="{% url 'dcodex_variants:location_for_witness' witness location.prev.id %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-left"></i></a>
         </div>
     {% endif %}
     {% if location.next %}
         <div id="next_location" class='inputHeader inputButton noselect'>
-            <a href="{% url 'location_for_witness' witness location.next.id %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-right"></i></a>        
+            <a href="{% url 'dcodex_variants:location_for_witness' witness location.next.id %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-right"></i></a>        
         </div>
     {% endif %}
         <div id="untagged" class='inputHeader inputButton noselect'>
-            <a href="{% url 'next_location_for_witness' witness %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-angle-double-right"></i></a>        
+            <a href="{% url 'dcodex_variants:next_location_for_witness' witness %}" class="btn btn-primary btn-sm chk-saved"><i class="fas fa-angle-double-right"></i></a>        
         </div>
     </div>
 
@@ -112,13 +112,13 @@
 <div style='height: 400px; '>
 {% if location.prev %}
     <div  id=prev_location_bottom class='inputHeader inputButton noselect'>
-        <a href="{% url 'location_for_witness' witness location.prev.id %}"  class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-left"></i></a>    
+        <a href="{% url 'dcodex_variants:location_for_witness' witness location.prev.id %}"  class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-left"></i></a>    
 
     </div>
 {% endif %}
 {% if location.next %}
     <div id="next_location_bottom" class='inputHeader inputButton noselect'>
-        <a href="{% url 'location_for_witness' witness location.next.id %}"  class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-right"></i></a>        
+        <a href="{% url 'dcodex_variants:location_for_witness' witness location.next.id %}"  class="btn btn-primary btn-sm chk-saved"><i class="fas fa-arrow-right"></i></a>        
     </div>
 {% endif %}
 
@@ -147,7 +147,7 @@
     {% for collation_location in location.collection.locationbase_set.all %}
         <div class="collation_location {% if collation_location.id == location.id %}collation_location_selected{% endif %}" id="collation_location{{ collation_location.id }}">
             <div>
-                <a href="{% url 'location_for_witness' witness collation_location.id %}">{{collation_location.start_verse.reference_abbreviation}}</a> 
+                <a href="{% url 'dcodex_variants:location_for_witness' witness collation_location.id %}">{{collation_location.start_verse.reference_abbreviation}}</a> 
             </div>
         </div>
     {% endfor %}
@@ -256,7 +256,7 @@ $( document ).ready(function() {
     function set_contra( transcription_id ) {
         $.ajax({
             type: "POST",
-            url: "{% url 'set_contra' %}",
+            url: "{% url 'dcodex_variants:set_contra' %}",
             data: {
                 'witness_id': {{ witness.id }},
                 'location_id': {{ location.id }},
@@ -271,7 +271,7 @@ $( document ).ready(function() {
     function remove_contra( transcription_id ) {
         $.ajax({
             type: "POST",
-            url: "{% url 'remove_contra' %}",
+            url: "{% url 'dcodex_variants:remove_contra' %}",
             data: {
                 'witness_id': {{ witness.id }},
                 'location_id': {{ location.id }},
