@@ -1,0 +1,18 @@
+{% extends "dcodex/base_logo.html" %}
+
+{% load static dcodex_tags dcodex_variants_tags %}
+
+{% block title %}Witnesses{% endblock %}
+
+
+{% block content %}
+  <div class="container ">
+    <h1>Witnesses</h1>
+    <ul>
+      {% for witness in object_list %}
+        <li><a href='{{ witness.get_absolute_url }}'>{{ witness }}</a></li>
+      {% endfor %}
+    </ul>
+
+  </div>
+{% endblock %}

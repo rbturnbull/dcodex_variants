@@ -61,6 +61,14 @@ class WitnessDetailView(PermissionRequiredMixin, generic.DetailView):
         return models.WitnessBase.objects.get(pk=self.kwargs['pk'])
 
 
+class WitnessListView(PermissionRequiredMixin, generic.ListView):
+    model = models.WitnessBase
+    extra_context = dict(title="Witnesses")
+    permission_required = "dcodex_variants.view_collection"
+    template_name = "dcodex_variants/witness_list.html"
+
+
+
 
 #################################################
 ###    Other Views 
