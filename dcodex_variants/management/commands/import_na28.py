@@ -25,6 +25,8 @@ def import_na28(collection, book_name, na28_html_file):
         '<span class="s2">⸆</span> <i>bis</i> μοι': "⸆ <i>bis</i> μοι",
         '<p class="p3">°<sup>1</sup>': "°1",
         '<p class="p3">°<sup>2</sup>': "°2",
+        '<p class="p4">°<sup>1</sup>': "°1",
+        '<p class="p4">°<sup>2</sup>': "°2",
         '<p class="p3"><span class="s2">⸁</span> (<i>ex itac.</i>?) οφειλετε': "⸁ (<i>ex itac.</i>?) οφειλετε",
         "⸀ θεω et ⸁ Χριστω": "⸀ θεω et ⸁ Χριστω",
         '<p class="p3"><span class="s2">⸉</span> <sup>1</sup>': "⸉1",
@@ -35,6 +37,24 @@ def import_na28(collection, book_name, na28_html_file):
         "</span> ινα τις κενωσει (<i>vel</i> κενωση)": "</span> ινα τις κενωσει (<i>vel</i> κενωση)",
         '<span class="s2">⸀</span> κρειττονα (<i>vel</i> κρεισσονα)': '<span class="s2">⸀</span> κρειττονα (<i>vel</i> κρεισσονα)',
         '<span class="s2">⸆</span> και του (− 629) ενος (− D) ποτηριου': '<span class="s2">⸆</span> και του (− 629) ενος (− D) ποτηριου',
+        '<span class="s1">⸂</span> ουκ οιομαι (<i>vel</i> οιμαι)' : '<span class="s1">⸂</span> ουκ οιομαι (<i>vel</i> οιμαι)',
+        "</span> προεχωμεθα (προκατεχομεθα D<sup>2</sup>); ου παντως" : "προεχωμεθα (or προκατεχομεθα); ου παντως",
+        "</span> προκατεχομεν (προεχομεθα Ψ, κατεχομεν 1505) περισσον;" : "προκατεχομεν (or προεχομεθα or κατεχομεν) περισσον;",
+        '<span class="s1">⸂</span> <i>2–5</i>' : '⸂ 2–5',
+        '<span class="s1">⸆</span> ᾖ' : '<span class="s1">⸆</span> ᾖ',
+        '<span class="s1">⸀</span> κατακρίνων ' : '<span class="s1">⸀</span> κατακρίνων',
+        '<p class="p4"><span class="s1">⸆</span> των ευαγγελιζομενων ειρηνην ℵ<sup>2</sup>' : '<p class="p4"><span class="s1">⸆</span> των ευαγγελιζομενων ειρηνην ℵ<sup>2</sup>',
+        '<p class="p4"><span class="s1">⸆</span> ει δε εξ εργων ουκετι εστι (− B) χαρις, επει το εργον ουκετι εστιν εργον (χαρις B)': '⸆ ει δε εξ εργων ουκετι εστι (− B) χαρις, επει το εργον ουκετι εστιν εργον (χαρις B)',
+        '<span class="s1">⸆</span> [16, 25–27]':'<span class="s1">⸆</span> [16, 25–27]',
+        '<p class="p4"><span class="s1">⸂</span> πεπληρωσθαι απο Ιερουσαλημ μεχρι του Ιλλυρικου και κυκλω (<span class="s1">⸉</span> και κυκλω μεχρι του Ιλλυρικου D<sup>1</sup>)' : '⸂ πεπληρωσθαι απο Ιερουσαλημ μεχρι του Ιλλυρικου και κυκλω (⸉ και κυκλω μεχρι του Ιλλυρικου)',
+        '<span class="s1">⸉</span> <i>6 1–5</i>' : '<span class="s1">⸉</span> <i>6 1–5</i>',
+        '<p class="p4"><span class="s1">⸆</span> [16, 25–27]' : '<p class="p4"><span class="s1">⸆</span> [16, 25–27]',
+        '<p class="p4"><span class="s1">⸄</span> και εμου και αλλων (+ πολλων D<sup>1</sup>) προστατις (παραστατις F G) εγενετο' : '⸄ και εμου και αλλων (+ πολλων) προστατις (παραστατις) εγενετο',
+        '<span class="s1">⸀</span> Αμπλιαν':'<span class="s1">⸀</span> Αμπλιαν',
+        '<span class="s1">⸂</span> Ιουνιαν Νηρεαν (Νηρεα C*)' : '⸂ Ιουνιαν Νηρεαν (Νηρεα)',
+        '</span> Olympiadem': 'Olympiadem',
+        '<span class="s1">⸂</span> <i>4 3 1 2</i>' : '⸂ 4 3 1 2',
+        '<p class="p4"><span class="s1">⸆</span> (2Th 3,18) [<b>24</b>] η χαρις του κυριου ημων Ιησου Χριστου (− Ιησου Χριστου F G 629) μετα παντων υμων (μεθ υμων 630). αμην (− 630)' : '⸆ (2Th 3,18) [24] η χαρις του κυριου ημων Ιησου Χριστου (− Ιησου Χριστου) μετα παντων υμων (μεθ υμων). αμην'
     }
 
     disallowed_reading_context = [
@@ -119,6 +139,8 @@ def import_na28(collection, book_name, na28_html_file):
     with open(na28_html_file, "r") as f:
         text = f.read()
 
+        text = text.replace('<p class="p3"><span class="s4">', '<p class="p4"><span class="s4">')
+
         text = text.replace(
             '</p>\n<p class="p4"><span class="s4">¦</span>',
             '</p><p class="p4"><span class="s4">¦</span>',
@@ -131,6 +153,7 @@ def import_na28(collection, book_name, na28_html_file):
         text = text.replace('<span class="s3">א</span>C', "ℵ C")
         text = text.replace('<span class="s3">א</span>', "ℵ")
         text = text.replace('<span class="s1">𝔪</span>', "𝔪")
+        text = text.replace('<span class="s2">𝔪</span>', "𝔪")
         # text = text.replace('<span class="s1">𝔓</span><sup>', "P")
         text = text.replace('</p><p class="p4"><span class="s4">', "")
 
@@ -194,6 +217,7 @@ def import_na28(collection, book_name, na28_html_file):
                 print(
                     f"\t--variation unit {current_chapter}:{current_verse}. {variation_unit_index}"
                 )
+                print('variation_unit text', variation_unit)
 
                 current_location, _ = LocationUBS.objects.get_or_create(
                     start_verse=current_verse_start_obj,
@@ -217,6 +241,7 @@ def import_na28(collection, book_name, na28_html_file):
                     raise Exception("in")
 
                 readings = variation_unit.split("¦")
+                print('readings', readings)
                 for reading_app in readings:
                     reading = None
                     reading_found = ""
@@ -228,6 +253,7 @@ def import_na28(collection, book_name, na28_html_file):
                         continue
 
                     print("reading_app raw:", reading_app)
+                    print("reading_app:", reading_app)
 
                     for r in known_readings:
                         if reading_app.startswith(r):
@@ -298,19 +324,20 @@ def import_na28(collection, book_name, na28_html_file):
                             reading = m.group(1)
                             reading_app = m.group(2)
 
-                        if m := re.match(r"(.*)(ℵ.*)", reading):
+                        elif m := re.match(r"(.*)(ℵ.*)", reading_app):
                             reading = m.group(1)
                             reading_app = m.group(2) + reading_app
 
-                        if m := re.match(r"(.*)(P\d.*)", reading):
-                            reading = m.group(1)
-                            reading_app = m.group(2) + reading_app
+                        # elif m := re.match(r"(.+) (P\d.*)", reading_app):
+                        #     reading = m.group(1)
+                        #     reading_app = m.group(2) + reading_app
 
                     if reading == None:
-                        raise Exception(f"Cannot parse reading: {reading_app}")
+                        raise Exception(f"Cannot parse reading_app: {reading_app}")
 
                     print("READING:", reading)
                     print("reading_app after reading:", reading_app)
+                    print('reading_found', reading_found)
 
                     witness_substitutions = {
                         r"sy<sup>(h|p|ph|hmg|h\*\*)<\/sup>": r"sy__\1",
@@ -370,6 +397,31 @@ def import_na28(collection, book_name, na28_html_file):
                         "(την <i>a.</i> αθανασιαν ℵ A 088. 33 <i>et</i> <i>a.</i> αφθαρσιαν 33)",
                         "ℵ A 088. 33",
                     )
+                    # Rom 14:23
+                    reading_app = reading_app.replace(
+                        '(<i>sed</i> <i>cf</i> 15,33 <span class="s1">⸆</span> <i>et</i> [16,25–27])',
+                        "",
+                    )
+                    # Romans 16:8
+                    reading_app = reading_app.replace(
+                        '(Απλιαν 365. 1505, Αμπλια 1739<sup>c</sup>)',
+                        "365. 1505. 1739<sup>c</sup>",
+                    )
+                    # Romans 16:23
+                    reading_app = reading_app.replace(
+                        '(<i>p.</i> [25–27] 33. 104. 365 sy<sup>p</sup> bo<sup>ms</sup>; Ambst; <i>sed</i> − ημων P)',
+                        "(33. 104. 365 sy<sup>p</sup> bo<sup>ms</sup>; Ambst; P)",
+                    )
+
+                    
+
+
+                    reading_app = reading_app.replace(
+                        'Mcion<sup>Or lat</sup>',
+                        "Mcion<sup>Or__lat</sup>",
+                    )
+
+                    
 
                     # Get rid of alt greek
                     reading_app = re.sub(r"\([\+\−α-ωἤῶ ]+(.*?)\)", r"\1", reading_app)
@@ -382,6 +434,9 @@ def import_na28(collection, book_name, na28_html_file):
                     )
                     reading_app = reading_app.replace(
                         "Ir<sup>arm, lat</sup><sup>pt</sup>", "Ir__arm_lat_pt"
+                    )
+                    reading_app = reading_app.replace(
+                        '(<span class="s1">⸉</span> Ir<sup>lat</sup>', '(Ir<sup>lat</sup>'
                     )
                     reading_app = reading_app.replace(
                         "Ir<sup>gr, lat</sup><sup>pt</sup>", "Ir__gr_lat_pt"
@@ -538,7 +593,15 @@ def import_na28(collection, book_name, na28_html_file):
                             authority = marcion_authorities[m.group(1)]
                             notes = f"According to {authority}."
 
+                        if m := re.match(r"Mcion<sup>Or__lat<\/sup>", witness):
+                            witness = "Mcion"
+                            notes = f"According to Origen (lat)."
+
                         if witness == "Ir<sup>lat</sup><sup>v.l.</sup>":
+                            witness = "Ir"
+                            notes = "lat v.l."
+
+                        if witness == "Ir<sup>lat v.l.</sup>":
                             witness = "Ir"
                             notes = "lat v.l."
 
@@ -615,7 +678,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--flush",
             type=str,
-            help="If 'yes', then it removes old locations in the collection before importing.",
+            default="no",
+            help="If 'yes', then it removes old locations in the collection before importing. Default: no",
         )
 
     def handle(self, *args, **options):

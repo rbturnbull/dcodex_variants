@@ -1,9 +1,13 @@
 from django.core.management.base import BaseCommand, CommandError
 from dcodex_variants.models import *
 from lxml import etree
+from pathlib import Path
 
 
 def atext_probabilities_fixed(count, atext_probability=0.8):
+    if count <= 1:
+        raise Exception(f"count = {count}")
+        return 1.0, 0.0
     not_atext_probability = (1.0 - atext_probability)/(count - 1)
 
     return atext_probability, not_atext_probability
@@ -208,7 +212,8 @@ class Command(BaseCommand):
                     )
 
                 if location.ausgangstext:
-                    ausgangstext_probability, not_ausgangstext_probability = atext_probabilities_fixed(location.reading_set.count(), 0.7)                    
+                    print(location)
+                    ausgangstext_probability, not_ausgangstext_probability = atext_probabilities_fixed(location.reading_set.count(), 0.8)                    
                     rootfreqs = [str(ausgangstext_probability) if location.ausgangstext == reading else str(not_ausgangstext_probability) for reading in location.reading_set.all()]
                     rootfreq_string = " ".join(rootfreqs)
                     root_frequencies = etree.SubElement(
@@ -382,5 +387,7 @@ class Command(BaseCommand):
         ###############################
         ####        Output
         ###############################
-        root.write(options["output"], pretty_print=True)
+        output_path = Path(options["output"])
+        output_path.parent.mkdir(exist_ok=True, parents=True)
+        root.write(str(output_path), pretty_print=True)
         

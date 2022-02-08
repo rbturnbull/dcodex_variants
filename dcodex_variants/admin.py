@@ -47,3 +47,8 @@ class ManuscriptWitnessAdmin(admin.ModelAdmin):
 @admin.register(Attestation)
 class AttestationAdmin(admin.ModelAdmin):
     raw_id_fields = ("reading",)
+
+
+@admin.register(ExtantVerse)
+class ExtantVerseAdmin(admin.ModelAdmin):
+    pass

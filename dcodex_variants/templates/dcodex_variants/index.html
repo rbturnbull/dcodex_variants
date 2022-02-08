@@ -1,0 +1,27 @@
+{% extends "dcodex/base_logo.html" %}
+
+{% load static dcodex_tags dcodex_variants_tags %}
+
+{% block title %}Collections{% endblock %}
+
+
+{% block content %}
+  <div class="container ">
+    <h1>dcodex variants</h1>
+    
+    <h2>Collections</h2>
+    <ul>
+      {% for collection in collections %}
+        <li><a href='{{ collection.get_absolute_url }}'>{{ collection }}</a></li>
+      {% endfor %}
+    </ul>
+    
+    <h2>Witnesses</h2>
+    <ul>
+      {% for witness in witnesses %}
+        <li><a href='{{ witness.get_absolute_url }}'>{{ witness }}</a></li>
+      {% endfor %}
+    </ul>
+
+  </div>
+{% endblock %}

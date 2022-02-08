@@ -15,6 +15,22 @@ from django.http import HttpResponse
 
 
 #################################################
+###    Index View 
+#################################################
+
+class IndexView(PermissionRequiredMixin, generic.TemplateView):
+    template_name = "dcodex_variants/index.html"
+    extra_context = dict(title="dcodex variants")
+    permission_required = "dcodex_variants.view_collection"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collections'] = models.Collection.objects.all()
+        context['witnesses'] = models.WitnessBase.objects.all()
+        return context
+
+
+#################################################
 ###    Collection Views 
 #################################################
 

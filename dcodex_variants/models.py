@@ -1,3 +1,4 @@
+from pathlib import Path
 import re
 import numpy as np
 from django.db import models
@@ -183,6 +184,9 @@ class Collection(models.Model):
         )
         max_states = state_counts.max()
 
+        filename = Path(filename)
+        filename.parent.mkdir(exist_ok=True, parents=True)
+
         with open(filename, "w") as file:
             file.write("#NEXUS\n")
             file.write("begin data;\n")
@@ -198,14 +202,12 @@ class Collection(models.Model):
             file.write('";\n')
 
             file.write("\tCHARSTATELABELS\n")
-            index = 0
-            for index, state_count in enumerate(state_counts):
+            for index, (state_count, location) in enumerate(zip(state_counts, locations)):
                 labels = ["State%d" % int(state) for state in range(state_count)]
+                labels_str = ". ".join(labels)
                 file.write(
-                    "\t\t%d  Character%d / %s,\n"
-                    % (index + 1, index + 1, ". ".join(labels))
+                    f"\t\t{index + 1}  Character{index + 1} / {labels_str},\t[ {location.reference(abbreviation=True)} ]\n"
                 )
-                index += 1
             file.write("\t;\n")
 
             # Work out the longest length of a siglum for a witness to format the matrix
@@ -231,9 +233,7 @@ class Collection(models.Model):
                         witness=witness, reading__location=location, corrector=None
                     )
 
-                    if attestations.count() == 0 or (
-                        str(witness) == "arb" and location.id < 47
-                    ):
+                    if attestations.count() == 0:
                         labels = ["?"]
                     else:
                         labels = [
@@ -573,6 +573,7 @@ class Attestation(models.Model):
 
     def __str__(self):
         return self.witness_siglum()
+
 
 class Contra(models.Model):
     """ A manuscript in a family witness that is contrary to the family text. """
