@@ -18,24 +18,15 @@ def reading_slug(reading):
     return f"{reading.id}-{slug}"
 
 
-def add_transition(transcriptional_relations, transition, rate_system, transcriptional_options):
-    if rate_system:
-        rate = rate_system.get_transition_rate(transition=transition)
-        ana = f"#{rate}"
-        
-    else:
-        ana = f"#{transition.transition_type_str()}"
-    
+def add_relation(transcriptional_relations, active_reading, passive_reading, ana, transcriptional_options):
     ana = make_nc_name(ana)
-    transcriptional_options.add(ana[1:])
-
+    transcriptional_options.add(ana)
     return ET.SubElement(
         transcriptional_relations, 
         'relation',
-        active=reading_slug(transition.start_state), # start reading n
-        passive=reading_slug(transition.end_state),
-        ana=ana, # the rate, https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-att.global.analytic.html
-        type=transition.transition_type_str(),
+        active=reading_slug(active_reading), # start reading n
+        passive=reading_slug(passive_reading),
+        ana=f"#{ana}", # the rate, https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-att.global.analytic.html
     )
 
 
@@ -43,7 +34,8 @@ def write_tei(
     collection, 
     file:Path, 
     witnesses=None, 
-    locations=None, 
+    locations=None,
+    subyz:bool=True,
     min_locations=1, 
     exclude_sigla=None,
     atext_witness:bool=False,
@@ -112,27 +104,27 @@ def write_tei(
 
             included_witnesses.update(reading_witnesses)
 
-        continue
-        # note = ET.Element('note')
-        # if atext_reading:
-        #     intrinsic_relations = ET.SubElement(note, 'listRelation', type="intrinsic")                
-        #     for state in states:
-        #         if state != column.atext:
-        #             relation = ET.SubElement(
-        #                 intrinsic_relations, 
-        #                 'relation',
-        #                 active=state_slug(column.atext), # start reading n
-        #                 passive=state_slug(state),
-        #                 ana="#AText",
-        #             )
-            
-        # List transitions as notes with relation elements
-        transitions = column.transition_set.all()
-        if transitions.count() > 0:
+        note = ET.Element('note')
+        atext_reading = getattr(location, 'ausgangstext', None)
+        if atext_reading:
+            intrinsic_relations = ET.SubElement(note, 'listRelation', type="intrinsic")                
+            for reading in location.reading_set.all():
+                if reading != atext_reading:
+                    relation = ET.SubElement(
+                        intrinsic_relations, 
+                        'relation',
+                        active=reading_slug(atext_reading), # start reading n
+                        passive=reading_slug(reading),
+                        ana="#AText",
+                    )
+
+        # List relation elements
+        byz_reading = getattr(location, 'byz', None)
+        if subyz and byz_reading:
             transcriptional_relations = ET.SubElement(note, 'listRelation', attrib={"type":"transcriptional"})
-            for transition in transitions:
-                add_transition(transcriptional_relations, transition, rate_system, transcriptional_options)
-                add_transition(transcriptional_relations, transition.create_inverse(), rate_system, transcriptional_options)
+            for reading in location.reading_set.exclude(id=byz_reading.id):
+                add_relation(transcriptional_relations, reading, byz_reading, "TO_BYZ", transcriptional_options)
+                add_relation(transcriptional_relations, byz_reading, reading, "FROM_BYZ", transcriptional_options)
 
         if len(note):
             app.append(note)
