@@ -143,13 +143,13 @@ def write_tei(
     for witness in included_witnesses:
         witness_element = ET.SubElement(listWit, 'witness', n=str(witness))
 
-        # origin_date_earliest, origin_date_latest = getattr(ms, 'origin_date_earliest', None), getattr(ms, 'origin_date_latest', None)
+        origin_date_earliest, origin_date_latest = getattr(witness, 'origin_date_earliest', None), getattr(witness, 'origin_date_latest', None)
 
-        # if origin_date_earliest is not None:
-        #     if origin_date_earliest == origin_date_latest:
-        #         ET.SubElement(witness_element, 'origDate', when=str(origin_date_earliest))
-        #     else:
-        #         ET.SubElement(witness_element, 'origDate', notBefore=str(origin_date_earliest), notAfter=str(origin_date_latest))
+        if origin_date_earliest is not None:
+            if origin_date_earliest == origin_date_latest:
+                ET.SubElement(witness_element, 'origDate', when=str(origin_date_earliest))
+            else:
+                ET.SubElement(witness_element, 'origDate', notBefore=str(origin_date_earliest), notAfter=str(origin_date_latest))
         
     for ana in transcriptional_options:
         ET.SubElement(interp_transcriptional, 'interp', attrib={"xml:id":ana})

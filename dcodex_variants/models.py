@@ -124,10 +124,12 @@ class WitnessBase(PolymorphicModel):
                 results[index] = 0
 
         return results
-
+    
 
 class SiglumWitness(WitnessBase):
     siglum = models.CharField(max_length=255)
+    origin_date_earliest = models.IntegerField(default=None, null=True)
+    origin_date_latest = models.IntegerField(default=None, null=True)
 
     def __str__(self):
         return self.siglum
@@ -138,6 +140,14 @@ class ManuscriptWitness(WitnessBase):
 
     def __str__(self):
         return str(self.manuscript.short_name())
+
+    @property
+    def origin_date_earliest(self):
+        return self.manuscript.origin_date_earliest
+
+    @property
+    def origin_date_latest(self):
+        return self.manuscript.origin_date_latest
 
 
 class FamilyWitness(WitnessBase):
