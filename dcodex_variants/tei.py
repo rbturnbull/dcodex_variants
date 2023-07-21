@@ -70,9 +70,8 @@ def write_tei(
 
     text_element = ET.SubElement(root, 'text')
     interp_intrinsic = ET.SubElement(text_element, 'interpGrp', type="intrinsic")
-    interp = ET.SubElement(interp_intrinsic, 'interp', attrib={"xml:id":"AText"})
-    certainty = ET.SubElement(interp, 'certainty', degree=str(atext_certainty_degree))
     interp_transcriptional = ET.SubElement(text_element, 'interpGrp', type="transcriptional")
+    intrinsic_options = set()
     transcriptional_options = set()
 
     body = ET.SubElement(text_element, 'body')
@@ -110,13 +109,20 @@ def write_tei(
             intrinsic_relations = ET.SubElement(note, 'listRelation', type="intrinsic")                
             for reading in location.reading_set.all():
                 if reading != atext_reading:
+                    category = getattr(location, 'category', None)
+                    if category is not None:
+                        ana = "Rating" + list("ABCD")[category]
+                    else:
+                        ana = "AText"
+                    
                     relation = ET.SubElement(
                         intrinsic_relations, 
                         'relation',
                         active=reading_slug(atext_reading), # start reading n
                         passive=reading_slug(reading),
-                        ana="#AText",
+                        ana=f"#{ana}",
                     )
+                    intrinsic_options.add(ana)
 
         # List relation elements
         byz_reading = getattr(location, 'byz', None)
@@ -143,7 +149,24 @@ def write_tei(
             else:
                 ET.SubElement(witness_element, 'origDate', notBefore=str(origin_date_earliest), notAfter=str(origin_date_latest))
         
-    for ana in transcriptional_options:
+    for ana in sorted(intrinsic_options):
+        interp = ET.SubElement(interp_intrinsic, 'interp', attrib={"xml:id":ana})
+        if ana == "AText":
+            certainty = atext_certainty_degree
+        elif ana == "RatingA":
+            certainty = 19
+        elif ana == "RatingB":
+            certainty = 4
+        elif ana == "RatingC":
+            certainty = 1.5
+        elif ana == "RatingD":
+            certainty = 1.1
+        else:
+            certainty = 1.0
+        
+        ET.SubElement(interp, 'certainty', degree=str(certainty))
+
+    for ana in sorted(transcriptional_options):
         ET.SubElement(interp_transcriptional, 'interp', attrib={"xml:id":ana})
 
     tree = ET.ElementTree(root)

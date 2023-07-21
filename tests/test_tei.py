@@ -51,6 +51,7 @@ class TEITest(TestCase):
 
             if location.start_verse.rank % 3 == 0:
                 location.ausgangstext = reading_a
+                location.category = list(range(4))[location.start_verse.rank % 4]
             
             if location.start_verse.rank % 2 == 0:
                 location.byz = reading_b
@@ -71,6 +72,8 @@ class TEITest(TestCase):
         assert '<witness n="7">\n\t\t\t\t\t\t<origDate notBefore="7" notAfter="24" />' in output_str
         assert '<relation active="25-text_8_-_A" passive="26-text_8_-_B" ana="#TO_BYZ" />' in output_str
         assert '<relation active="26-text_8_-_B" passive="25-text_8_-_A" ana="#FROM_BYZ" />' in output_str
+        assert '<interpGrp type="intrinsic">\n\t\t\t<interp xml:id="RatingA">\n\t\t\t\t<certainty degree="19" />\n\t\t\t</interp>\n\t\t\t<interp xml:id="RatingB">\n\t\t\t\t<certainty degree="4" />\n\t\t\t</interp>\n\t\t\t<interp xml:id="RatingC">\n\t\t\t\t<certainty degree="1.5" />\n\t\t\t</interp>\n\t\t\t<interp xml:id="RatingD">\n\t\t\t\t<certainty degree="1.1" />' in output_str
+        assert '<relation active="28-text_9_-_A" passive="29-text_9_-_B" ana="#RatingB" />' in output_str
 
 
 
