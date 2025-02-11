@@ -9,13 +9,13 @@ repository = "https://github.com/rbturnbull/dcodex_variants"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-Django = "^3.2.6"
-dcodex = "^1.0.3"
-regex = "^2021.10.23"
+Django = ">=3.2.6"
+dcodex = {git = "https://github.com/rbturnbull/dcodex.git", branch="dates"}
+regex = ">=2021.10.23"
 rich = ">=10.0.0"
 
 
-[tool.poetry.dev-dependencies]
+[poetry.group.dev.dependencies]
 black = "^21.9b0"
 coverage = "^6.0.2"
 
