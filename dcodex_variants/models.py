@@ -152,6 +152,8 @@ class ManuscriptWitness(WitnessBase):
 
 class FamilyWitness(WitnessBase):
     family = models.ForeignKey(Family, on_delete=models.CASCADE)
+    origin_date_earliest = models.IntegerField(default=None, null=True)
+    origin_date_latest = models.IntegerField(default=None, null=True)
 
     def __str__(self):
         return str(self.family)

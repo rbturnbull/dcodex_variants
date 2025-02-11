@@ -35,6 +35,7 @@ class Command(BaseCommand):
             options["outputfile"], 
             min_locations=options["min_locations"], 
             exclude_sigla=options["exclude_sigla"],
+            atext_certainty_degree=
         )
 
     witnesses=None, 

@@ -6,12 +6,13 @@ from rich.progress import track
 ATEXT_SIGLUM = "AText"
 
 def make_nc_name(string):
+    string = str(string)
+    string = string.replace("–", "-") # replace en dashes
     invalid_chars = "!\"#$%&'()*+/:;<=>?@[\]^,{|}~` "
-    result = str(string).translate(str.maketrans(invalid_chars, '_' * len(invalid_chars)))
-    # if result[0].isdigit or result[0] in [".", "-"]:
-    #     result = "id-" + result
+    result = string.translate(str.maketrans(invalid_chars, '_' * len(invalid_chars)))
 
     return result
+
 
 def reading_slug(reading):
     slug = make_nc_name(str(reading))
@@ -111,7 +112,7 @@ def write_tei(
                 if reading != atext_reading:
                     category = getattr(location, 'category', None)
                     if category is not None:
-                        ana = "Rating" + list("ABCD")[category]
+                        ana = "Rating" + list("ABCD")[category-1]
                     else:
                         ana = "AText"
                     
