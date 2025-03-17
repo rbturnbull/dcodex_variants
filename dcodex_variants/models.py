@@ -455,6 +455,7 @@ class LocationBase(PolymorphicModel):
     )
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     rank = models.PositiveIntegerField()
+    identifier = models.CharField(max_length=1023, default="", blank=True)
 
     def get_absolute_url(self):
         return reverse("dcodex_variants:location-detail", kwargs={"pk": self.pk, "collection_pk":self.collection.pk})
@@ -551,6 +552,7 @@ class LocationUBS(LocationBase):
 class Reading(models.Model):
     text = models.TextField()
     location = models.ForeignKey(LocationBase, on_delete=models.CASCADE)
+    identifier = models.CharField(max_length=1023, default="", blank=True)
 
     def __str__(self):
         return self.text
