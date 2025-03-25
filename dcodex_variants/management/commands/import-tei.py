@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 from dcodex_bible.models import BibleVerse
-from dcodex_variants.models import Collection, Location, Attestation, Reading
+from dcodex_variants.models import Collection, Location, Attestation, Reading, SiglumWitness
 from lxml import etree as ET
 from lxml.etree import _ElementTree as ElementTree
 from lxml.etree import _Element as Element
@@ -15,7 +15,7 @@ def read_tei(path:Path) -> ElementTree:
 
 
 def extract_text(node:Element, include_tail:bool=True) -> str:
-    if node is None:
+    if node is None or not isinstance(node.tag, str):
         return ""
     
     tag = re.sub(r"{.*}", "", node.tag)
@@ -79,10 +79,11 @@ class Command(BaseCommand):
             name=tei_path.name,
         )
         tei_tree = read_tei(tei_path)
-        for rank, app in enumerate(find_elements(tei_tree, "app")):
-            identifier = app.attrib.get("n", "")
+        for rank, app in enumerate(find_elements(tei_tree, ".//app")):
+            identifier = app.attrib.get('{http://www.w3.org/XML/1998/namespace}id', "")
+            print(identifier)
             # B10K1V6U20-24
-            if match := re.match(r"B(\d+)K(\d+)V(\d+)"):
+            if match := re.match(r"B(\d+)K(\d+)V(\d+)", identifier):
                 book = int(match.group(1)) + 39  # number of books in OT
                 chapter = int(match.group(2))
                 verse_num = int(match.group(3))
@@ -102,8 +103,9 @@ class Command(BaseCommand):
                     rank=rank,
                 ),
             )
-            for rdg in find_elements(app, "rdg"):
+            for rdg in find_elements(app, ".//rdg"):
                 reading_text = extract_text(rdg)
+                print(reading_text)
                 reading, _ = Reading.objects.update_or_create(
                     identifier=rdg.attrib.get("n", ""),
                     location=location,
@@ -112,7 +114,7 @@ class Command(BaseCommand):
                     ),
                 )
 
-                for witness_name in reading.attrib["wit"].split():
+                for witness_name in rdg.attrib["wit"].split():
                     # check if there is a corrector
                     if witness_name.endswith("C"):
                         siglum = witness_name[:-1]
@@ -125,22 +127,13 @@ class Command(BaseCommand):
                         corrector = 0
                     else:
                         siglum = witness_name
-                        corrector =  0
+                        corrector =  None
+                    witness, _ = SiglumWitness.objects.get_or_create(siglum=siglum)
 
                     attestation, _ = Attestation.objects.update_or_create(
-                        witness=siglum,
+                        witness=witness,
                         reading=reading,
                         corrector=corrector,
                     )
 
         print("Success!")
-
-            # <app xml:id="B10K4V922-V10U22">
-
-            # <app xml:id="B10K1V6U20-24">
-            #     <lem><w>εν</w><w>τω</w><w>ηγαπημενω</w></lem>
-            #     <rdg n="1" wit="2085 223 1863 42 1896 912 390 234 1834 Lach NA28 1913 BasilOfCaesarea Origen Theodoret P46 01 02 03 06C2 018 020 025 044 056 075S 0142 0150 0151 0319C0 1 6 18 33 35 38 61 69 81 93 94 102 104 177 181 203 218 263 296 322 326 337 363 365 383 398 424 436 442 462 467 506 606 636 664 665 915 1069 1108 1115 1127 1175 1240 1241 1245 1311 1319 1490 1505 1509 1573 1611 1617 1678 1718 1721 1729 1739 1751 1831 1836 1837 1838 1840 1851 1860 1877 1881 1886 1893 1908 1910/1 1910/3 1912 1939 1959 1962 1963 1985 1987 1991 1996 1999 2005 2008 2011 2012 2127 2138 2180 2243 2344 2352 2464 2492 2523 2544 2805 2865S L156 L169/2 L587 L809 L1159 L1188 L1440 L2010 L2058 syrhmg RP SBL TH TR Tisch Treg WH"><w>εν</w><w>τω</w><w>ηγαπημενω</w></rdg>
-            #     <rdg n="1-v1" type="reconstructed" wit="459"><w>εν</w><w>τω</w><w>ηγαπ<unclear>η</unclear>μενω</w></rdg>
-            #     <rdg n="1-v2" type="reconstructed" wit="256"><w>εν</w><w>τω</w><w>ηγαπη<supplied reason="lacuna">μενω</supplied></w></rdg>
-            #     <rdg n="1-v3" type="reconstructed" wit="L169/1"><w>εν</w><w>τω</w><w>ηγ<unclear>α</unclear>πημενω</w></rdg>
-            #     <rdg n="1-f1" type="defective" cause="linguistic-confusion" ana="#LingConf" wit="2495"><w>εν</w><w>τω</w><w>αγαπημενω</w></rdg>

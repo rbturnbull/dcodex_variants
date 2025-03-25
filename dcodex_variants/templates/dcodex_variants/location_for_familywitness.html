@@ -56,11 +56,11 @@
         </div>
     </div>
 
-    <h2>{{ location.start_verse }}</span></h2>
+    <h2>{{collation_location.identifier}} <span>{{ location.start_verse }}</span></h2>
 
     <ul>
     {% for reading in location.reading_set.all %}
-        <li>{{ reading.id }}: {{ reading }}
+        <li>{{ reading.identifier }}: {{ reading }} - {{ reading.witnesses_sigla }}
     {% endfor %}
     </ul>
     </div>
@@ -68,7 +68,7 @@
 <div class="container text-center">
 <div id="variants">
     {% for reading in location.reading_set.all %}
-        <button type="button" class="btn  {{ witness|button_for_reading:reading }} reading" data-reading="{{ reading.id }}" data-toggle="tooltip" title="{{ reading.witnesses_sigla }}" data-placement="bottom">{{ reading }}</button>
+        <button type="button" class="btn  {{ witness|button_for_reading:reading }} reading" data-reading="{{ reading.id }}" data-toggle="tooltip" title="{{ reading.witnesses_sigla|truncatewords:10 }}" data-placement="bottom">{{ reading.identifier }}: {{ reading }}</button>
     {% endfor %}
     <hr>
 </center>
@@ -147,7 +147,7 @@
     {% for collation_location in location.collection.locationbase_set.all %}
         <div class="collation_location {% if collation_location.id == location.id %}collation_location_selected{% endif %}" id="collation_location{{ collation_location.id }}">
             <div>
-                <a href="{% url 'dcodex_variants:location_for_witness' witness collation_location.id %}">{{collation_location.start_verse.reference_abbreviation}}</a> 
+                <a href="{% url 'dcodex_variants:location_for_witness' witness collation_location.id %}">{{collation_location.start_verse.reference_abbreviation}} {{collation_location.identifier}}</a> 
             </div>
         </div>
     {% endfor %}
@@ -178,7 +178,7 @@ $( document ).ready(function() {
     function set_attestation( reading ) {
         $.ajax({
             type: "POST",
-            url: "/dcodex_variants/set_attestation/",
+            url: "{% url 'dcodex_variants:set_attestation' %}",
             data: {
                 'reading_id': reading.data('reading'), 
                 'witness_id': {{ witness.id }},

@@ -97,7 +97,7 @@ def index(request):
 
 @login_required
 def location_for_witness(request, witness_slug, location_id):
-    location = get_object_or_404(models.LocationUBS, id=location_id)
+    location = get_object_or_404(models.LocationBase, id=location_id)
 
     manuscripts = []
     transcriptions = []

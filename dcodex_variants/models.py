@@ -554,8 +554,11 @@ class Reading(models.Model):
     location = models.ForeignKey(LocationBase, on_delete=models.CASCADE)
     identifier = models.CharField(max_length=1023, default="", blank=True)
 
+    class Meta:
+        ordering = ["location", "identifier", "pk"]
+
     def __str__(self):
-        return self.text
+        return self.text or "OMIT"
 
     def tex(self):
         """ Returns a string suitable for formatting in TeX. """
@@ -568,6 +571,7 @@ class Reading(models.Model):
         return " ".join(
             [attestation.witness_siglum() for attestation in self.attestations()]
         )
+    
 
 
 class Attestation(models.Model):
