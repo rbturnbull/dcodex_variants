@@ -207,7 +207,7 @@ $( document ).ready(function() {
     function remove_attestation( reading ) {
         $.ajax({
             type: "POST",
-            url: "/dcodex_variants/remove_attestation/",
+            url: "{% url 'dcodex_variants:remove_attestation' %}",
             data: {
                 'reading_id': reading.data('reading'), 
                 'witness_id': {{ witness.id }},
